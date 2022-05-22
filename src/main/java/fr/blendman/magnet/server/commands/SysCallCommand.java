@@ -6,12 +6,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Blendman974
@@ -49,7 +51,7 @@ public class SysCallCommand implements TabExecutor {
         ctx.set("ctx", context);
         ctx.set("magnet", serverMagnet);
         ctx.set("serverMagner", serverMagnet.getMagnet());
-        ctx.set("players", Bukkit.getOnlinePlayers());
+        ctx.set("players", Bukkit.getOnlinePlayers().stream().collect(Collectors.toMap(HumanEntity::getName, o -> o)));
         ctx.set("server", Bukkit.getServer());
         ctx.set("self", player);
         try {

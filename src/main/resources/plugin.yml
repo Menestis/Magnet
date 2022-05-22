@@ -1,0 +1,21 @@
+name: Magnet
+main: fr.blendman.magnet.server.ServerMagnet
+version: 1.0
+load: STARTUP
+depend:
+  - Vulcan
+commands:
+  aban:
+    permission: magnet.command.ban
+  astop:
+    permission: magnet.admin.servers.stop
+  skick:
+    permission: magnet.system.kick
+  sban:
+    permission: magnet.system.ban
+  setprop:
+    permission: magnet.servers.setproperties
+  setstate:
+    permission: magnet.servers.setstate
+  syscall:
+    permission: magnet.servers.setstate

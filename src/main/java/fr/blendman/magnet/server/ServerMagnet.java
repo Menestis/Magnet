@@ -99,8 +99,18 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
         this.infos.put(uniqueId, info);
     }
 
-    public ServerLoginPlayerInfo getInfo(UUID uniqueId) {
-        return this.infos.get(uniqueId);
+    public fr.blendman.magnet.api.server.ServerLoginPlayerInfo getInfo(UUID uniqueId) {
+        return fromServerInfo(this.infos.get(uniqueId));
+    }
+
+    public ServerLoginPlayerInfo getRawInfo(UUID uuid) {
+        return this.infos.get(uuid);
+    }
+
+    public fr.blendman.magnet.api.server.ServerLoginPlayerInfo fromServerInfo(ServerLoginPlayerInfo info) {
+        if (info == null)
+            return null;
+        return new fr.blendman.magnet.api.server.ServerLoginPlayerInfo(info.getSession(), info.getProxy(), info.getPrefix(), info.getSuffix(), info.getLocale(), info.getPermissions(), info.getPower(), info.getCurrency(), info.getPremiumCurrency(), info.getBlocked(), info.getInventory(), info.getProperties());
     }
 
     public boolean shouldBeWhitelisted(UUID uuid) {
@@ -130,6 +140,7 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
     public void addWhitelist(UUID player) {
         whitelist.add(player);
     }
+
 
 
 }

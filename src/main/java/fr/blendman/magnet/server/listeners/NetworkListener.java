@@ -37,7 +37,7 @@ public class NetworkListener {
 
     public void onPlayerInvalidation(InvalidatePlayerEvent event) {
         Player player = Bukkit.getPlayer(event.getUuid());
-        ServerLoginPlayerInfo info = serverMagnet.getInfo(event.getUuid());
+        ServerLoginPlayerInfo info = serverMagnet.getRawInfo(event.getUuid());
         if (player == null || info == null)
             return;
 
@@ -54,7 +54,7 @@ public class NetworkListener {
             info.setBlocked(newInfo.getBlocked());
             info.setInventory(newInfo.getInventory());
             if (Bukkit.getPlayer(event.getUuid()) != null)
-                Bukkit.getPluginManager().callEvent(new PlayerInfoReadyEvent(info, player, true));
+                Bukkit.getPluginManager().callEvent(new PlayerInfoReadyEvent(serverMagnet.fromServerInfo(info), player, true));
         }).exceptionally(throwable -> {
             throwable.printStackTrace();
             return null;

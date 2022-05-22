@@ -1,8 +1,8 @@
 package fr.blendman.magnet.server.commands;
 
 import fr.blendman.magnet.Magnet;
+import fr.blendman.magnet.api.server.ServerLoginPlayerInfo;
 import fr.blendman.magnet.server.ServerMagnet;
-import fr.blendman.skynet.models.ServerLoginPlayerInfo;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

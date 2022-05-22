@@ -98,7 +98,7 @@ public class LoginListener implements Listener {
                 perms.setPermission(p, true);
         }
 
-        Bukkit.getPluginManager().callEvent(new PlayerInfoReadyEvent(info, player, false));
+        Bukkit.getPluginManager().callEvent(new PlayerInfoReadyEvent(serverMagnet.fromServerInfo(info), player, false));
     }
 
     public void tryStartIdlingTask(UUID ignore) {

@@ -176,5 +176,11 @@
             <version>1.0</version>
             <systemPath>${project.basedir}/lib/VulcanAPI.jar</systemPath>
         </dependency>
+        <dependency>
+            <groupId>fr.blendman</groupId>
+            <artifactId>skynet-api</artifactId>
+            <version>1.0</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>

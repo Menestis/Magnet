@@ -2,8 +2,10 @@ package fr.blendman.magnet;
 
 import fr.blendman.magnet.api.MagnetApi;
 import fr.blendman.magnet.api.handles.transactions.TransactionsHandle;
+import fr.blendman.magnet.api.server.ChatManager;
 import fr.blendman.magnet.handles.TransactionsHandleImpl;
 import fr.blendman.magnet.messenger.MagnetMessenger;
+import fr.blendman.magnet.server.managers.ServerChatManager;
 import fr.blendman.magnet.utils.ApiCallBackToCompletableFuture;
 import fr.blendman.skynet.api.*;
 import fr.blendman.skynet.client.ApiClient;
@@ -35,6 +37,8 @@ public class Magnet implements MagnetApi {
     private final SessionApi sessionApi;
     private final TransactionsHandle transactionHandle;
 
+    private final ChatManager chatManager;
+
     public Magnet(MagnetSide side) throws Exception {
         client = Configuration.getDefaultApiClient();
 
@@ -61,6 +65,7 @@ public class Magnet implements MagnetApi {
         loginApi = new LoginApi(client);
         sessionApi = new SessionApi(client);
 
+        chatManager = new ServerChatManager();
         transactionHandle = new TransactionsHandleImpl(this);
         MagnetStore.setApi(this);
     }
@@ -168,6 +173,11 @@ public class Magnet implements MagnetApi {
     @Override
     public TransactionsHandle getTransactionHandle() {
         return transactionHandle;
+    }
+
+    @Override
+    public ChatManager getChatManager(){
+        return this.chatManager;
     }
 
     public CompletableFuture<Void> stop() {

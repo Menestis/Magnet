@@ -85,8 +85,8 @@
 
     <repositories>
         <repository>
-            <id>guillaume-etheve</id>
-            <url>https://nexus.guillaume-etheve.fr/repository/maven/</url>
+            <id>aspaku</id>
+            <url>https://nexus.aspaku.com/repository/maven/</url>
         </repository>
         <repository>
             <name>jcenter</name>
@@ -94,7 +94,7 @@
             <url>https://jcenter.bintray.com</url>
         </repository>
         <repository>
-            <id>spigotmc-repo</id>
+            <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
         </repository>
         <repository>

@@ -6,8 +6,10 @@ import fr.blendman.magnet.api.handles.messenger.events.AdminMovePlayerEvent;
 import fr.blendman.magnet.api.handles.messenger.events.InvalidatePlayerEvent;
 import fr.blendman.magnet.api.server.ServerCacheHandler;
 import fr.blendman.magnet.server.commands.AStopCommand;
+import fr.blendman.magnet.server.commands.ReportMessCommand;
 import fr.blendman.magnet.server.commands.SysCallCommand;
 import fr.blendman.magnet.server.listeners.BukkitCommandPreProcessor;
+import fr.blendman.magnet.server.listeners.ChatListener;
 import fr.blendman.magnet.server.listeners.LoginListener;
 import fr.blendman.magnet.server.listeners.NetworkListener;
 import fr.blendman.magnet.server.managers.AnticheatManager;
@@ -56,9 +58,11 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
             e.printStackTrace();
             getServer().shutdown();
         }
+
         Bukkit.getPluginManager().registerEvents(new LoginListener(this), this);
         Bukkit.getPluginManager().registerEvents(new AnticheatManager(), this);
         Bukkit.getPluginManager().registerEvents(new BukkitCommandPreProcessor(this), this);
+        Bukkit.getPluginManager().registerEvents(new ChatListener(this), this);
         registerCommands();
         Bukkit.getScheduler().runTask(this, () -> {
             try {
@@ -78,6 +82,7 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
     private void registerCommands() {
         registerCommand(new AStopCommand(this), "astop");
         registerCommand(new SysCallCommand(this), "syscall");
+        registerCommand(new ReportMessCommand(), "reportmess");
     }
 
     private void registerCommand(TabExecutor cmd, String cmdName) {

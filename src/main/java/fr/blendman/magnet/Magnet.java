@@ -14,8 +14,10 @@ import fr.blendman.skynet.models.PlayerInfo;
 import fr.blendman.skynet.models.PlayerMove;
 import fr.blendman.skynet.models.Server;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * @author Blendman974
@@ -85,6 +87,30 @@ public class Magnet implements MagnetApi {
 
     public UUID getServerId() {
         return server.getId();
+    }
+
+    @Override
+    public CompletableFuture<Integer> getPlayerCount() {
+        CompletableFuture<Integer> ret = new CompletableFuture<>();
+        try {
+            getServerApi().apiOnlinecountGetAsync(new ApiCallBackToCompletableFuture<>(ret));
+        } catch (ApiException e) {
+            ret.completeExceptionally(e);
+        }
+        return ret;
+    }
+
+    @Override
+    public CompletableFuture<List<fr.blendman.magnet.api.server.Server>> getAllServers() {
+        CompletableFuture<List<Server>> ret = new CompletableFuture<>();
+        try {
+            getServerApi().apiServersGetAsync(new ApiCallBackToCompletableFuture<>(ret));
+        } catch (ApiException e) {
+            ret.completeExceptionally(e);
+        }
+        return ret.thenApply(servers -> servers.stream().map(
+                srv -> new fr.blendman.magnet.api.server.Server(srv.getId(), srv.getDescription(), srv.getIp(), srv.getKey(), srv.getKind(), srv.getLabel(), srv.getState(), srv.getProperties())
+        ).collect(Collectors.toList()));
     }
 
     public PlayerApi getPlayerApi() {

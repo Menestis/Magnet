@@ -3,6 +3,8 @@ package fr.blendman.magnet.server.commands;
 import fr.blendman.magnet.Magnet;
 import fr.blendman.magnet.api.server.players.ServerLoginPlayerInfo;
 import fr.blendman.magnet.server.ServerMagnet;
+import fr.blendman.magnet.utils.ApiCallBackToCompletableFuture;
+import fr.blendman.skynet.client.ApiException;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -13,15 +15,16 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Blendman974
  */
-public class AStopCommand implements TabExecutor {
+public class LinkCommand implements TabExecutor {
 
     private final ServerMagnet serverMagnet;
 
-    public AStopCommand(ServerMagnet serverMagnet) {
+    public LinkCommand(ServerMagnet serverMagnet) {
         this.serverMagnet = serverMagnet;
     }
 
@@ -35,18 +38,24 @@ public class AStopCommand implements TabExecutor {
         Player player = (Player) sender;
         ServerLoginPlayerInfo info = serverMagnet.getInfo(player.getUniqueId());
 
-        if (!player.hasPermission("magnet.admin.servers.stop")) {
-            sender.sendMessage(Magnet.getPrefix() + ChatColor.RED + "You don't have the required permissions");
-            return true;
+        if (info.getDiscordId() != null && (args.length == 0 || !args[0].equals("relink"))) {
+            sender.sendMessage(Magnet.getPrefix() + ChatColor.RED + "Votre compte discord est déja lié (/link relink pour lier de nouveaux votre compte) !");
         }
 
-        serverMagnet.getMagnet().stop().thenAccept(unused -> {
-            sender.sendMessage(Magnet.getPrefix() + ChatColor.RED + "Demande d'arret envoyée !");
-        }).exceptionally(throwable -> {
-            throwable.printStackTrace();
-            sender.sendMessage(Magnet.getPrefix() + ChatColor.RED + "La demande d'arret n'a pas pu aboutir !");
-            return null;
-        });
+        CompletableFuture<String> ret = new CompletableFuture<>();
+
+        try {
+            serverMagnet.getMagnet().getDiscordApi().apiDiscordLinkUuidGetAsync(player.getUniqueId(), new ApiCallBackToCompletableFuture<>(ret));
+        } catch (ApiException e) {
+            ret.completeExceptionally(e);
+        }
+
+        ret.thenAccept(code -> sender.sendMessage(Magnet.getPrefix() + "Votre code : " + code + " !"))
+                .exceptionally(throwable -> {
+                    throwable.printStackTrace();
+                    return null;
+                });
+
         return true;
     }
 

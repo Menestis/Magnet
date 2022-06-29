@@ -1,6 +1,7 @@
 package fr.blendman.magnet.server.listeners;
 
 import fr.blendman.magnet.api.handles.messenger.events.AdminMovePlayerEvent;
+import fr.blendman.magnet.api.handles.messenger.events.BroadcastEvent;
 import fr.blendman.magnet.api.handles.messenger.events.InvalidatePlayerEvent;
 import fr.blendman.magnet.api.server.events.PlayerInfoReadyEvent;
 import fr.blendman.magnet.server.ServerMagnet;
@@ -27,7 +28,7 @@ public class NetworkListener {
     public void onAdminMove(AdminMovePlayerEvent event) {
         System.out.println("Admin move : " + event.player + " | " + event.server);
         serverMagnet.addWhitelist(event.player);
-        serverMagnet.getMagnet().movePlayerToServer(event.player, event.server, false).thenAccept(unused -> {
+        serverMagnet.getMagnet().getPlayerHandle().movePlayerToServer(event.player, event.server, false).thenAccept(unused -> {
 
         }).exceptionally(throwable -> {
             throwable.printStackTrace();
@@ -53,6 +54,8 @@ public class NetworkListener {
             info.setPremiumCurrency(newInfo.getPremiumCurrency());
             info.setBlocked(newInfo.getBlocked());
             info.setInventory(newInfo.getInventory());
+            info.setDiscordId(newInfo.getDiscordId());
+            info.setMute(newInfo.getMute());
             if (Bukkit.getPlayer(event.getUuid()) != null)
                 Bukkit.getPluginManager().callEvent(new PlayerInfoReadyEvent(serverMagnet.fromServerInfo(info), player, true));
         }).exceptionally(throwable -> {
@@ -60,4 +63,13 @@ public class NetworkListener {
             return null;
         });
     }
+
+    public void onBroadcast(BroadcastEvent event) {
+        if (event.getPermission() != null){
+            Bukkit.broadcast(event.getMessage(), event.getPermission());
+        }else {
+            Bukkit.broadcastMessage(event.getMessage());
+        }
+    }
+
 }

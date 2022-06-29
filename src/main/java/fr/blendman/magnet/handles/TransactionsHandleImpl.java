@@ -1,7 +1,7 @@
 package fr.blendman.magnet.handles;
 
 import fr.blendman.magnet.Magnet;
-import fr.blendman.magnet.api.handles.transactions.TransactionsHandle;
+import fr.blendman.magnet.api.handles.TransactionsHandle;
 import fr.blendman.magnet.utils.ApiCallBackToCompletableFuture;
 import fr.blendman.skynet.api.PlayerApi;
 import fr.blendman.skynet.client.ApiException;

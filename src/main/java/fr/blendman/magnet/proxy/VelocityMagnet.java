@@ -68,6 +68,7 @@ public class VelocityMagnet {
             magnet.getMessenger().registerListener(listener::onMoveRequest, MovePlayerEvent.class);
             magnet.getMessenger().registerListener(listener::onMoveToAvailable, MovePlayerToAvailableEvent.class);
             magnet.getMessenger().registerListener(listener::onDisconnectRequest, DisconnectPlayerEvent.class);
+            magnet.getMessenger().registerListener(listener::onBroadcast, BroadcastEvent.class);
 
         } catch (Exception e) {
             e.printStackTrace();

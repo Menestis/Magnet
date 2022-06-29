@@ -1,7 +1,7 @@
 package fr.blendman.magnet.server.listeners;
 
 import fr.blendman.magnet.Magnet;
-import fr.blendman.magnet.api.server.ServerLoginPlayerInfo;
+import fr.blendman.magnet.api.server.players.ServerLoginPlayerInfo;
 import fr.blendman.magnet.server.ServerMagnet;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -40,7 +40,7 @@ public class BukkitCommandPreProcessor implements Listener {
         }
 
         if ((!player.hasPermission("magnet.chat.bypass_cooldown")) && lastCommandExecution.containsKey(player.getUniqueId()) && ((lastCommandExecution.get(player.getUniqueId()) + 500) > System.currentTimeMillis())) {
-            player.sendMessage("§3§lMenestis §f§l» §cVous envoyez trop de commandes.");
+            player.sendMessage(Magnet.getPrefix() + "§cVous envoyez trop de commandes.");
             event.setCancelled(true);
             return;
         }

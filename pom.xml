@@ -83,6 +83,14 @@
         </resources>
     </build>
 
+    <distributionManagement>
+        <repository>
+            <id>aspaku</id>
+            <name>Aspaku Maven</name>
+            <url>https://nexus.aspaku.com/repository/maven/</url>
+        </repository>
+    </distributionManagement>
+
     <repositories>
         <repository>
             <id>aspaku</id>

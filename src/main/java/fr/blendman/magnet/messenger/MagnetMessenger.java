@@ -6,6 +6,7 @@ import com.rabbitmq.client.*;
 import fr.blendman.magnet.MagnetSide;
 import fr.blendman.magnet.api.handles.messenger.MagnetNetworkEvent;
 import fr.blendman.magnet.api.handles.messenger.MessengerHandle;
+import fr.blendman.skynet.models.Broadcast;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

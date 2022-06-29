@@ -43,8 +43,8 @@ public class LoginListener {
     private final ProxyApi proxyApi;
     private final LoginApi loginApi;
 
-    private Map<UUID, ProxyLoginPlayerInfo> playerInfos = new HashMap<>();
-    private Map<UUID, UUID> sessions = new HashMap<>();
+    private final Map<UUID, ProxyLoginPlayerInfo> playerInfos = new HashMap<>();
+    private final Map<UUID, UUID> sessions = new HashMap<>();
 
     public LoginListener(VelocityMagnet velocityMagnet) {
         this.velocityMagnet = velocityMagnet;

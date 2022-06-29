@@ -1,11 +1,14 @@
 package fr.blendman.magnet;
 
 import fr.blendman.magnet.api.MagnetApi;
-import fr.blendman.magnet.api.handles.transactions.TransactionsHandle;
-import fr.blendman.magnet.api.server.ChatManager;
+import fr.blendman.magnet.api.handles.PlayerHandle;
+import fr.blendman.magnet.api.handles.TransactionsHandle;
+
+import fr.blendman.magnet.api.server.chat.ChatManager;
+import fr.blendman.magnet.handles.PlayerHandleImpl;
 import fr.blendman.magnet.handles.TransactionsHandleImpl;
 import fr.blendman.magnet.messenger.MagnetMessenger;
-import fr.blendman.magnet.server.managers.ServerChatManager;
+import fr.blendman.magnet.server.chat.ChatManagerImpl;
 import fr.blendman.magnet.utils.ApiCallBackToCompletableFuture;
 import fr.blendman.skynet.api.*;
 import fr.blendman.skynet.client.ApiClient;
@@ -13,7 +16,6 @@ import fr.blendman.skynet.client.ApiException;
 import fr.blendman.skynet.client.Configuration;
 import fr.blendman.skynet.client.auth.ApiKeyAuth;
 import fr.blendman.skynet.models.PlayerInfo;
-import fr.blendman.skynet.models.PlayerMove;
 import fr.blendman.skynet.models.Server;
 
 import java.util.List;
@@ -36,7 +38,8 @@ public class Magnet implements MagnetApi {
     private final LoginApi loginApi;
     private final SessionApi sessionApi;
     private final TransactionsHandle transactionHandle;
-
+    private final PlayerHandle playerHandle;
+    private final DiscordApi discordApi;
     private final ChatManager chatManager;
 
     public Magnet(MagnetSide side) throws Exception {
@@ -64,14 +67,16 @@ public class Magnet implements MagnetApi {
         playerApi = new PlayerApi(client);
         loginApi = new LoginApi(client);
         sessionApi = new SessionApi(client);
+        discordApi = new DiscordApi(client);
 
-        chatManager = new ServerChatManager();
+        chatManager = new ChatManagerImpl(this);
         transactionHandle = new TransactionsHandleImpl(this);
+        playerHandle = new PlayerHandleImpl(this);
         MagnetStore.setApi(this);
     }
 
     public static String getPrefix() {
-        return "§cMagnet > §f";
+        return "§3§lMenestis §f§l» ";
     }
 
     public ApiClient getClient() {
@@ -114,7 +119,7 @@ public class Magnet implements MagnetApi {
             ret.completeExceptionally(e);
         }
         return ret.thenApply(servers -> servers.stream().map(
-                srv -> new fr.blendman.magnet.api.server.Server(srv.getId(), srv.getDescription(), srv.getIp(), srv.getKey(), srv.getKind(), srv.getLabel(), srv.getState(), srv.getProperties())
+                srv -> new fr.blendman.magnet.api.server.Server(srv.getId(), srv.getDescription(), srv.getIp(), srv.getKey(), srv.getKind(), srv.getLabel(), srv.getState().toString(), srv.getProperties())
         ).collect(Collectors.toList()));
     }
 
@@ -122,33 +127,34 @@ public class Magnet implements MagnetApi {
         return playerApi;
     }
 
-    @Override
-    public CompletableFuture<Boolean> movePlayerToServer(UUID player, UUID server, boolean whitelist) {
-        CompletableFuture<Boolean> ret = new CompletableFuture<>();
-        try {
-            getPlayerApi().apiPlayersUuidMovePostAsync(player, new PlayerMove().server(server).adminMove(whitelist), new ApiCallBackToCompletableFuture<>(ret));
-        } catch (ApiException e) {
-            ret.completeExceptionally(e);
-        }
-        return ret;
-    }
-
-    @Override
-    public CompletableFuture<Boolean> movePlayerToServer(UUID player, String s) {
-        CompletableFuture<Boolean> ret = new CompletableFuture<>();
-        try {
-            getPlayerApi().apiPlayersUuidMovePostAsync(player, new PlayerMove().kind(s), new ApiCallBackToCompletableFuture<>(ret));
-        } catch (ApiException e) {
-            ret.completeExceptionally(e);
-        }
-        return ret;
-    }
 
     @Override
     public CompletableFuture<Void> setServerState(String s) {
         CompletableFuture<Void> ret = new CompletableFuture<>();
         try {
             getServerApi().apiServersUuidSetstatePostAsync(getServerId(), s, new ApiCallBackToCompletableFuture<>(ret));
+        } catch (ApiException e) {
+            ret.completeExceptionally(e);
+        }
+        return ret;
+    }
+
+    @Override
+    public CompletableFuture<Void> setServerDescription(String s) {
+        CompletableFuture<Void> ret = new CompletableFuture<>();
+        try {
+            getServerApi().apiServersUuidSetdescriptionPostAsync(getServerId(), s, new ApiCallBackToCompletableFuture<>(ret));
+        } catch (ApiException e) {
+            ret.completeExceptionally(e);
+        }
+        return ret;
+    }
+
+    @Override
+    public CompletableFuture<Void> sendWebhook(String name, String message) {
+        CompletableFuture<Void> ret = new CompletableFuture<>();
+        try {
+            getDiscordApi().apiDiscordWebhookNamePostAsync(name, message, new ApiCallBackToCompletableFuture<>(ret));
         } catch (ApiException e) {
             ret.completeExceptionally(e);
         }
@@ -176,6 +182,11 @@ public class Magnet implements MagnetApi {
     }
 
     @Override
+    public PlayerHandle getPlayerHandle() {
+        return playerHandle;
+    }
+
+    @Override
     public ChatManager getChatManager(){
         return this.chatManager;
     }
@@ -197,4 +208,11 @@ public class Magnet implements MagnetApi {
     public SessionApi getSessionApi() {
         return sessionApi;
     }
+
+    public DiscordApi getDiscordApi() {
+        return discordApi;
+    }
+
+
 }
+

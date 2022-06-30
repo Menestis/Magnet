@@ -48,7 +48,7 @@ public class ChatListener implements Listener {
             return;
         }
 
-        if (muted.contains(player.getUniqueId())){
+        if (muted.contains(player.getUniqueId())) {
             Mute mute = ServerCacheHandler.ServerCacheHandlerStore.getServerCacheHandler().getInfo(player.getUniqueId()).getMute();
 
             player.playSound(player.getLocation(), "ANVIL_BREAK", 1, 1);
@@ -64,7 +64,6 @@ public class ChatListener implements Listener {
             return;
         }
 
-        event.setCancelled(true);
         this.lastMessageExecution.put(player.getUniqueId(), System.currentTimeMillis());
         ((ChatManagerImpl) MagnetApi.MagnetStore.getApi().getChatManager()).onMessage(player, event.getMessage());
     }
@@ -78,9 +77,10 @@ public class ChatListener implements Listener {
 
             //TODO schedule a task (but optimized) to unmute the player once his sanction is finished
 
-            if (event.isReCache()) {
+            if (event.isReCache() && !muted.contains(event.getPlayer().getUniqueId())) {
                 Player player = event.getPlayer();
 
+                player.playSound(player.getLocation(), "ANVIL_BREAK", 1, 1);
                 player.sendMessage("");
                 player.sendMessage("§8┃ §cVous avez été réduit(e) au silence.");
                 player.sendMessage("");
@@ -91,7 +91,7 @@ public class ChatListener implements Listener {
                 player.sendMessage("§8• §fTemps restant: §e" + NumberUtils.timeToStringAll(mute.getRemaining()));
                 player.sendMessage("");
             }
-        }else if (event.isReCache())
+        } else if (event.isReCache())
             muted.remove(event.getPlayer().getUniqueId());
     }
 

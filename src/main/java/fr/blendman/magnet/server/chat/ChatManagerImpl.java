@@ -55,8 +55,6 @@ public class ChatManagerImpl implements ChatManager {
         this.playerStringBiConsumer.accept(player, message, messageId);
     }
 
-
-    //TODO coucou faire ici le weebhook
     @Override
     public void reportPlayer(Player reporter, String string) {
         if (!idMessageDataMap.containsKey(string)) {
@@ -90,8 +88,8 @@ public class ChatManagerImpl implements ChatManager {
 //        });
 
         try {
-            //TODO joli
-            magnet.getDiscordApi().apiDiscordWebhookNamePostAsync("ingame-reports", "Le joueur " + messageData.getPlayerName() + " a été signalé pour son message " + messageData.getMessage(), new ApiCallback<Void>() {
+            //TODO trouver utf8 emojis
+            magnet.getDiscordApi().apiDiscordWebhookNamePostAsync("ingame-reports", "**(!)** Le joueur `" + messageData.getPlayerName() + "` a été signalé pour son message " + messageData.getMessage() + " (par `" + reporter.getName() + "`)", new ApiCallback<Void>() {
                 @Override
                 public void onFailure(ApiException e, int statusCode, Map<String, List<String>> responseHeaders) {
                     e.printStackTrace();

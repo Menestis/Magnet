@@ -39,7 +39,7 @@ public class LinkCommand implements TabExecutor {
         ServerLoginPlayerInfo info = serverMagnet.getInfo(player.getUniqueId());
 
         if (info.getDiscordId() != null && (args.length == 0 || !args[0].equals("relink"))) {
-            sender.sendMessage(Magnet.getPrefix() + ChatColor.RED + "Votre compte discord est déja lié (/link relink pour lier de nouveaux votre compte) !");
+            sender.sendMessage(Magnet.getPrefix() + ChatColor.RED + "Votre compte discord est déjà relié (/link relink pour lier de nouveau votre compte) !");
         }
 
         CompletableFuture<String> ret = new CompletableFuture<>();
@@ -50,7 +50,7 @@ public class LinkCommand implements TabExecutor {
             ret.completeExceptionally(e);
         }
 
-        ret.thenAccept(code -> sender.sendMessage(Magnet.getPrefix() + "Votre code : " + code + " !"))
+        ret.thenAccept(code -> sender.sendMessage(Magnet.getPrefix() + "§7Votre code de liaison est: §b" + code + " §7!"))
                 .exceptionally(throwable -> {
                     throwable.printStackTrace();
                     return null;

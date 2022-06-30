@@ -2,11 +2,13 @@ package fr.blendman.magnet.server.listeners;
 
 import fr.blendman.magnet.Magnet;
 import fr.blendman.magnet.api.MagnetApi;
+import fr.blendman.magnet.api.server.ServerCacheHandler;
 import fr.blendman.magnet.api.server.events.PlayerInfoReadyEvent;
 import fr.blendman.magnet.api.server.players.Mute;
 import fr.blendman.magnet.api.server.players.ServerLoginPlayerInfo;
 import fr.blendman.magnet.server.ServerMagnet;
 import fr.blendman.magnet.server.chat.ChatManagerImpl;
+import fr.blendman.magnet.utils.NumberUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -47,7 +49,18 @@ public class ChatListener implements Listener {
         }
 
         if (muted.contains(player.getUniqueId())){
-            //TODO envoyer msg mute
+            Mute mute = ServerCacheHandler.ServerCacheHandlerStore.getServerCacheHandler().getInfo(player.getUniqueId()).getMute();
+
+            player.playSound(player.getLocation(), "ANVIL_BREAK", 1, 1);
+            player.sendMessage("");
+            player.sendMessage("§8┃ §cVous avez été réduit(e) au silence.");
+            player.sendMessage("");
+            player.sendMessage("§8• §fRaison: §c" + mute.getReason());
+            player.sendMessage("§8• §fDate de fin: §c" + mute.getEnd());
+            player.sendMessage("§8• §fDate de début: §c" + mute.getStart());
+            player.sendMessage("");
+            player.sendMessage("§8• §fTemps restant: §e" + NumberUtils.timeToStringAll(mute.getRemaining()));
+            player.sendMessage("");
             return;
         }
 
@@ -66,8 +79,17 @@ public class ChatListener implements Listener {
             //TODO schedule a task (but optimized) to unmute the player once his sanction is finished
 
             if (event.isReCache()) {
-                //TODO @Ariloxe toute les infos sont dans event.getInfo().getMute()
-                event.getPlayer().sendMessage(Magnet.getPrefix() + "§cVous avez été mute pour " + mute.getReason());
+                Player player = event.getPlayer();
+
+                player.sendMessage("");
+                player.sendMessage("§8┃ §cVous avez été réduit(e) au silence.");
+                player.sendMessage("");
+                player.sendMessage("§8• §fRaison: §c" + mute.getReason());
+                player.sendMessage("§8• §fDate de fin: §c" + mute.getEnd());
+                player.sendMessage("§8• §fDate de début: §c" + mute.getStart());
+                player.sendMessage("");
+                player.sendMessage("§8• §fTemps restant: §e" + NumberUtils.timeToStringAll(mute.getRemaining()));
+                player.sendMessage("");
             }
         }else if (event.isReCache())
             muted.remove(event.getPlayer().getUniqueId());

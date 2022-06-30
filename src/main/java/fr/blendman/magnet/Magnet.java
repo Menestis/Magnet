@@ -15,10 +15,12 @@ import fr.blendman.skynet.client.ApiClient;
 import fr.blendman.skynet.client.ApiException;
 import fr.blendman.skynet.client.Configuration;
 import fr.blendman.skynet.client.auth.ApiKeyAuth;
+import fr.blendman.skynet.models.CreateServer;
 import fr.blendman.skynet.models.PlayerInfo;
 import fr.blendman.skynet.models.Server;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -155,6 +157,16 @@ public class Magnet implements MagnetApi {
         CompletableFuture<Void> ret = new CompletableFuture<>();
         try {
             getDiscordApi().apiDiscordWebhookNamePostAsync(name, message, new ApiCallBackToCompletableFuture<>(ret));
+        } catch (ApiException e) {
+            ret.completeExceptionally(e);
+        }
+        return ret;
+    }
+    @Override
+    public CompletableFuture<String> startServer(String nane, String kind, Map<String, String> properties) {
+        CompletableFuture<String> ret = new CompletableFuture<>();
+        try {
+            getServerApi().apiServersPostAsync(new CreateServer().name(nane).kind(kind).properties(properties), new ApiCallBackToCompletableFuture<>(ret));
         } catch (ApiException e) {
             ret.completeExceptionally(e);
         }

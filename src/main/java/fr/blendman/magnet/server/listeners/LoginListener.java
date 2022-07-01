@@ -15,6 +15,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.permissions.PermissionAttachment;
@@ -73,6 +74,15 @@ public class LoginListener implements Listener {
             return null;
         });
 
+    }
+    @EventHandler
+    public void onPostLogin(PlayerJoinEvent event){
+        CompletableFuture<Void> ret = new CompletableFuture<>();
+        try {
+            serverApi.apiServersUuidPlayercountPostAsync(serverMagnet.getMagnet().getServerId(), Bukkit.getOnlinePlayers().size(), new ApiCallBackToCompletableFuture<>(ret));
+        } catch (ApiException e) {
+            e.printStackTrace();
+        }
     }
 
     private void processLoginInfo(Player player, ServerLoginPlayerInfo info) {

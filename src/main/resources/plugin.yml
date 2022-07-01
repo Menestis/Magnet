@@ -19,3 +19,5 @@ commands:
     permission: magnet.servers.setstate
   syscall:
     permission: magnet.servers.setstate
+  link: {}
+  reportmsg: {}

@@ -102,6 +102,11 @@ public class Magnet implements MagnetApi {
     }
 
     @Override
+    public String getServerLabel() {
+        return getServer().getLabel();
+    }
+
+    @Override
     public CompletableFuture<Integer> getPlayerCount() {
         CompletableFuture<Integer> ret = new CompletableFuture<>();
         try {
@@ -121,7 +126,7 @@ public class Magnet implements MagnetApi {
             ret.completeExceptionally(e);
         }
         return ret.thenApply(servers -> servers.stream().map(
-                srv -> new fr.blendman.magnet.api.server.Server(srv.getId(), srv.getDescription(), srv.getIp(), srv.getKey(), srv.getKind(), srv.getLabel(), srv.getState().toString(), srv.getProperties())
+                srv -> new fr.blendman.magnet.api.server.Server(srv.getId(), srv.getDescription(), srv.getIp(), srv.getKind(), srv.getLabel(), srv.getState().toString(), srv.getProperties(), srv.getOnline())
         ).collect(Collectors.toList()));
     }
 

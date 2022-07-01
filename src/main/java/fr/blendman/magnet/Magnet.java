@@ -51,7 +51,7 @@ public class Magnet implements MagnetApi {
         if (skynetUrl == null)
             throw new Exception("Missing SKYNET_URL");
 
-//        client.setDebugging(true);
+        client.setDebugging(true);
         client.setBasePath(skynetUrl);
 
         String s = System.getenv("SERVER_NAME") == null ? System.getenv("HOSTNAME") : System.getenv("SERVER_NAME");

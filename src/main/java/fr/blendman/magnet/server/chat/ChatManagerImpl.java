@@ -1,7 +1,6 @@
 package fr.blendman.magnet.server.chat;
 
 import fr.blendman.magnet.Magnet;
-import fr.blendman.magnet.api.MagnetApi;
 import fr.blendman.magnet.api.server.ServerCacheHandler;
 import fr.blendman.magnet.api.server.chat.ChatManager;
 import fr.blendman.magnet.api.server.chat.PlayerChatConsumer;
@@ -96,13 +95,16 @@ public class ChatManagerImpl implements ChatManager {
                 }
 
                 @Override
-                public void onSuccess(Void result, int statusCode, Map<String, List<String>> responseHeaders) {}
+                public void onSuccess(Void result, int statusCode, Map<String, List<String>> responseHeaders) {
+                }
 
                 @Override
-                public void onUploadProgress(long bytesWritten, long contentLength, boolean done) {}
+                public void onUploadProgress(long bytesWritten, long contentLength, boolean done) {
+                }
 
                 @Override
-                public void onDownloadProgress(long bytesRead, long contentLength, boolean done) {}
+                public void onDownloadProgress(long bytesRead, long contentLength, boolean done) {
+                }
             });
         } catch (ApiException e) {
             e.printStackTrace();
@@ -116,13 +118,16 @@ public class ChatManagerImpl implements ChatManager {
                 }
 
                 @Override
-                public void onSuccess(Void result, int statusCode, Map<String, List<String>> responseHeaders) {}
+                public void onSuccess(Void result, int statusCode, Map<String, List<String>> responseHeaders) {
+                }
 
                 @Override
-                public void onUploadProgress(long bytesWritten, long contentLength, boolean done) {}
+                public void onUploadProgress(long bytesWritten, long contentLength, boolean done) {
+                }
 
                 @Override
-                public void onDownloadProgress(long bytesRead, long contentLength, boolean done) {}
+                public void onDownloadProgress(long bytesRead, long contentLength, boolean done) {
+                }
             });
         } catch (ApiException e) {
             e.printStackTrace();
@@ -151,27 +156,24 @@ public class ChatManagerImpl implements ChatManager {
     }
 
 
-    private PlayerChatConsumer playerStringBiConsumer = new PlayerChatConsumer() {
-        @Override
-        public void accept(Player player, String message, String id) {
+    private PlayerChatConsumer playerStringBiConsumer = (player, message, id) -> {
 
-            String prefix = ServerCacheHandler.ServerCacheHandlerStore.getServerCacheHandler().getInfo(player.getUniqueId()).getPrefix();
+        String prefix = ServerCacheHandler.ServerCacheHandlerStore.getServerCacheHandler().getInfo(player.getUniqueId()).getPrefix();
 
-            String[] checkMention = message.split(" ");
-            for (String word : checkMention) {
-                Player target = Bukkit.getPlayerExact(word);
-                if (target != null) {
-                    message = message.replaceFirst(word, "§6@" + word + "§f");
-                    target.playSound(target.getLocation(), Sound.valueOf("ORB_PICKUP"), 1.0F, 0.0F);
-                }
+        String[] checkMention = message.split(" ");
+        for (String word : checkMention) {
+            Player target = Bukkit.getPlayerExact(word);
+            if (target != null) {
+                message = message.replaceFirst(word, "§6@" + word + "§f");
+                target.playSound(target.getLocation(), Sound.valueOf("ORB_PICKUP"), 1.0F, 0.0F);
             }
-
-            InteractiveMessage interactiveMessage = new InteractiveMessage().add(
-                            new TextComponentBuilder("§4Ⓒ ").setHoverMessage("§8§l▪ §cCliquez pour signaler le message du joueur §e" + player.getName())
-                                    .setClickAction(ClickEvent.Action.RUN_COMMAND, "/reportmess " + id).build())
-                    .add((prefix) + player.getName() + " » §f" + message);
-
-            Bukkit.getOnlinePlayers().forEach(interactiveMessage::sendMessage);
         }
+
+        InteractiveMessage interactiveMessage = new InteractiveMessage().add(
+                        new TextComponentBuilder("§4Ⓒ ").setHoverMessage("§8§l▪ §cCliquez pour signaler le message du joueur §e" + player.getName())
+                                .setClickAction(ClickEvent.Action.RUN_COMMAND, "/reportmsg " + id).build())
+                .add((prefix == null ? "§7" : prefix) + player.getName() + " » §f" + message);
+
+        Bukkit.getOnlinePlayers().forEach(interactiveMessage::sendMessage);
     };
 }

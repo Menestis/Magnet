@@ -6,7 +6,9 @@ import fr.blendman.magnet.api.handles.messenger.events.AdminMovePlayerEvent;
 import fr.blendman.magnet.api.handles.messenger.events.BroadcastEvent;
 import fr.blendman.magnet.api.handles.messenger.events.InvalidatePlayerEvent;
 import fr.blendman.magnet.api.server.ServerCacheHandler;
+import fr.blendman.magnet.api.server.chat.ChatManager;
 import fr.blendman.magnet.api.server.players.Mute;
+import fr.blendman.magnet.server.chat.ChatManagerImpl;
 import fr.blendman.magnet.server.commands.AStopCommand;
 import fr.blendman.magnet.server.commands.LinkCommand;
 import fr.blendman.magnet.server.commands.ReportMessageCommand;
@@ -38,6 +40,8 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
     private final Map<UUID, ServerLoginPlayerInfo> infos = new HashMap<>();
     private final List<UUID> whitelist = new ArrayList<>();
     private final List<Consumer<Integer>> loop = new ArrayList<>();
+
+    private ChatManagerImpl chatManager;
 
     @Override
     public void onLoad() {
@@ -77,6 +81,8 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
                 e.printStackTrace();
             }
         });
+        chatManager = new ChatManagerImpl(this);
+
     }
 
     private void processKindCompat(Server server) {
@@ -89,7 +95,7 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
         registerCommand(new AStopCommand(this), "astop");
         registerCommand(new SysCallCommand(this), "syscall");
         registerCommand(new LinkCommand(this), "link");
-        registerCommand(new ReportMessageCommand(), "reportmsg");
+        registerCommand(new ReportMessageCommand(this), "reportmsg");
     }
 
     private void registerCommand(TabExecutor cmd, String cmdName) {
@@ -155,6 +161,9 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
         whitelist.add(player);
     }
 
+    public ChatManagerImpl getChatManager(){
+        return this.chatManager;
+    }
 
     public void scheduleOnLoop(Consumer<Integer> consumer){
         this.loop.add(consumer);

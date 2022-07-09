@@ -3,12 +3,9 @@ package fr.blendman.magnet;
 import fr.blendman.magnet.api.MagnetApi;
 import fr.blendman.magnet.api.handles.PlayerHandle;
 import fr.blendman.magnet.api.handles.TransactionsHandle;
-
-import fr.blendman.magnet.api.server.chat.ChatManager;
 import fr.blendman.magnet.handles.PlayerHandleImpl;
 import fr.blendman.magnet.handles.TransactionsHandleImpl;
 import fr.blendman.magnet.messenger.MagnetMessenger;
-import fr.blendman.magnet.server.chat.ChatManagerImpl;
 import fr.blendman.magnet.utils.ApiCallBackToCompletableFuture;
 import fr.blendman.skynet.api.*;
 import fr.blendman.skynet.client.ApiClient;
@@ -30,7 +27,6 @@ import java.util.stream.Collectors;
  */
 public class Magnet implements MagnetApi {
 
-
     private final Server server;
     private final ServerApi serverApi;
     private final MagnetMessenger messenger;
@@ -42,7 +38,6 @@ public class Magnet implements MagnetApi {
     private final TransactionsHandle transactionHandle;
     private final PlayerHandle playerHandle;
     private final DiscordApi discordApi;
-    private final ChatManager chatManager;
 
     public Magnet(MagnetSide side) throws Exception {
         client = Configuration.getDefaultApiClient();
@@ -51,7 +46,7 @@ public class Magnet implements MagnetApi {
         if (skynetUrl == null)
             throw new Exception("Missing SKYNET_URL");
 
-        client.setDebugging(true);
+        //client.setDebugging(true);
         client.setBasePath(skynetUrl);
 
         String s = System.getenv("SERVER_NAME") == null ? System.getenv("HOSTNAME") : System.getenv("SERVER_NAME");
@@ -71,7 +66,6 @@ public class Magnet implements MagnetApi {
         sessionApi = new SessionApi(client);
         discordApi = new DiscordApi(client);
 
-        chatManager = new ChatManagerImpl(this);
         transactionHandle = new TransactionsHandleImpl(this);
         playerHandle = new PlayerHandleImpl(this);
         MagnetStore.setApi(this);
@@ -167,6 +161,7 @@ public class Magnet implements MagnetApi {
         }
         return ret;
     }
+
     @Override
     public CompletableFuture<String> startServer(String nane, String kind, Map<String, String> properties) {
         CompletableFuture<String> ret = new CompletableFuture<>();
@@ -204,9 +199,6 @@ public class Magnet implements MagnetApi {
     }
 
     @Override
-    public ChatManager getChatManager(){
-        return this.chatManager;
-    }
 
     public CompletableFuture<Void> stop() {
         CompletableFuture<Void> ret = new CompletableFuture<>();

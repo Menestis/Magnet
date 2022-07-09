@@ -1,6 +1,7 @@
 package fr.blendman.magnet.server.commands;
 
 import fr.blendman.magnet.api.MagnetApi;
+import fr.blendman.magnet.server.ServerMagnet;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -16,13 +17,20 @@ import java.util.List;
  */
 public class ReportMessageCommand implements TabExecutor {
 
+    private final ServerMagnet serverMagnet;
+
+    public ReportMessageCommand(ServerMagnet serverMagnet) {
+
+        this.serverMagnet = serverMagnet;
+    }
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         if (strings.length == 0)
             return true;
 
         Player player = ((Player) sender);
-        MagnetApi.MagnetStore.getApi().getChatManager().reportPlayer(player, strings[0]);
+        serverMagnet.getChatManager().reportPlayer(player, strings[0]);
 
         return true;
     }

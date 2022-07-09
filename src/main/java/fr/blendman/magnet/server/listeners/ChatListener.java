@@ -65,7 +65,7 @@ public class ChatListener implements Listener {
         }
 
         this.lastMessageExecution.put(player.getUniqueId(), System.currentTimeMillis());
-        ((ChatManagerImpl) MagnetApi.MagnetStore.getApi().getChatManager()).onMessage(player, event.getMessage());
+        serverMagnet.getChatManager().onMessage(player, event.getMessage());
     }
 
 

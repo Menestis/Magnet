@@ -4,6 +4,7 @@ import fr.blendman.magnet.Magnet;
 import fr.blendman.magnet.api.server.ServerCacheHandler;
 import fr.blendman.magnet.api.server.chat.ChatManager;
 import fr.blendman.magnet.api.server.chat.PlayerChatConsumer;
+import fr.blendman.magnet.server.ServerMagnet;
 import fr.blendman.magnet.utils.InteractiveMessage;
 import fr.blendman.magnet.utils.TextComponentBuilder;
 import fr.blendman.skynet.client.ApiCallback;
@@ -30,9 +31,9 @@ public class ChatManagerImpl implements ChatManager {
     private final Map<String, List<UUID>> confirmationMap = new HashMap<>();
 
     private boolean ranVisible = true;
-    private final Magnet magnet;
+    private final ServerMagnet magnet;
 
-    public ChatManagerImpl(Magnet magnet) {
+    public ChatManagerImpl(ServerMagnet magnet) {
         this.magnet = magnet;
     }
 
@@ -88,7 +89,7 @@ public class ChatManagerImpl implements ChatManager {
 
         try {
             //TODO trouver utf8 emojis
-            magnet.getDiscordApi().apiDiscordWebhookNamePostAsync("ingame-reports", "**(!)** Le joueur `" + messageData.getPlayerName() + "` a été signalé pour son message " + messageData.getMessage() + " (par `" + reporter.getName() + "`)", new ApiCallback<Void>() {
+            magnet.getMagnet().getDiscordApi().apiDiscordWebhookNamePostAsync("ingame-reports", "**(!)** Le joueur `" + messageData.getPlayerName() + "` a été signalé pour son message " + messageData.getMessage() + " (par `" + reporter.getName() + "`)", new ApiCallback<Void>() {
                 @Override
                 public void onFailure(ApiException e, int statusCode, Map<String, List<String>> responseHeaders) {
                     e.printStackTrace();
@@ -111,7 +112,7 @@ public class ChatManagerImpl implements ChatManager {
         }
 
         try {
-            magnet.getServerApi().apiServersBroadcastPostAsync(new Broadcast().message("§8(§c!§8) §7Le joueur §e" + messageData.getPlayerName() + "§7 a été signalé pour son message §a" + messageData.getMessage()).permission("moderation.reports.see"), new ApiCallback<Void>() {
+            magnet.getMagnet().getServerApi().apiServersBroadcastPostAsync(new Broadcast().message("§8(§c!§8) §7Le joueur §e" + messageData.getPlayerName() + "§7 a été signalé pour son message §a" + messageData.getMessage()).permission("moderation.reports.see"), new ApiCallback<Void>() {
                 @Override
                 public void onFailure(ApiException e, int statusCode, Map<String, List<String>> responseHeaders) {
                     e.printStackTrace();

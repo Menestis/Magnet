@@ -27,7 +27,6 @@ public class ChatManagerImpl implements ChatManager {
 
     private final Deque<MessageData> messageQueue = new ArrayDeque<>();
     private final Map<String, MessageData> idMessageDataMap = new HashMap<>();
-
     private final Map<String, List<UUID>> confirmationMap = new HashMap<>();
 
     private boolean ranVisible = true;

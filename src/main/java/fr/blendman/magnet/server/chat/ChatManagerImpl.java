@@ -74,6 +74,7 @@ public class ChatManagerImpl implements ChatManager {
             reporter.sendMessage("");
             new InteractiveMessage().add(new TextComponentBuilder("§8§l■ §aCliquez ici pour confirmer").setHoverMessage("§8- §aCliquez pour confirmer le signalement §8-").setClickAction(ClickEvent.Action.RUN_COMMAND, "/reportmsg " + messageData.getId()).build()).sendMessage(reporter);
             reporter.sendMessage("");
+            confirmationMap.get(string).add(reporter.getUniqueId());
             return;
         }
 

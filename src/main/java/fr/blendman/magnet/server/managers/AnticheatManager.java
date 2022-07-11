@@ -20,9 +20,9 @@ public class AnticheatManager implements Listener {
             if (VulcanAPI.Factory.getApi() == null)
                 return;
             Player player = event.getPlayer();
-            if (player.hasPermission("vulcan.alerts") && !VulcanAPI.Factory.getApi().hasAlertsEnabled(player)) {
-                VulcanAPI.Factory.getApi().toggleAlerts(player);
-            }
+//            if (player.hasPermission("vulcan.alerts") && !VulcanAPI.Factory.getApi().hasAlertsEnabled(player)) {
+//                VulcanAPI.Factory.getApi().toggleAlerts(player);
+//            }
         });
     }
 }

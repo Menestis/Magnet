@@ -18,6 +18,7 @@ import fr.blendman.skynet.models.Server;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -38,9 +39,11 @@ public class Magnet implements MagnetApi {
     private final TransactionsHandle transactionHandle;
     private final PlayerHandle playerHandle;
     private final DiscordApi discordApi;
+    private final Timer timer;
 
     public Magnet(MagnetSide side) throws Exception {
         client = Configuration.getDefaultApiClient();
+        timer = new Timer();
 
         String skynetUrl = System.getenv("SKYNET_URL");
         if (skynetUrl == null)
@@ -222,6 +225,8 @@ public class Magnet implements MagnetApi {
         return discordApi;
     }
 
-
+    public Timer getTimer() {
+        return timer;
+    }
 }
 

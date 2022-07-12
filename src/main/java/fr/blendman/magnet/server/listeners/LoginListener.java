@@ -19,10 +19,10 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.permissions.PermissionAttachment;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -33,7 +33,7 @@ public class LoginListener implements Listener {
     private final ServerMagnet serverMagnet;
     private final ServerApi serverApi;
     private final LoginApi loginApi;
-    private BukkitTask idlingTask;
+    private TimerTask idlingTask;
 
     public LoginListener(ServerMagnet serverMagnet) {
         this.serverMagnet = serverMagnet;
@@ -75,8 +75,9 @@ public class LoginListener implements Listener {
         });
 
     }
+
     @EventHandler
-    public void onPostLogin(PlayerJoinEvent event){
+    public void onPostLogin(PlayerJoinEvent event) {
         CompletableFuture<Void> ret = new CompletableFuture<>();
         try {
             serverApi.apiServersUuidPlayercountPostAsync(serverMagnet.getMagnet().getServerId(), Bukkit.getOnlinePlayers().size(), new ApiCallBackToCompletableFuture<>(ret));
@@ -116,12 +117,18 @@ public class LoginListener implements Listener {
             return;
         if (Bukkit.getOnlinePlayers().stream().noneMatch(player -> player.getUniqueId() != ignore)) {
             serverMagnet.getLogger().info("Started idling task");
-            idlingTask = Bukkit.getScheduler().runTaskLater(serverMagnet, () -> serverMagnet.getMagnet().setServerState("Idle")
-                    .thenAccept(unused -> serverMagnet.getLogger().info("Server state is now : Idle"))
-                    .exceptionally(throwable -> {
-                        throwable.printStackTrace();
-                        return null;
-                    }), 20 * 60 * 5);
+            idlingTask = new TimerTask() {
+                @Override
+                public void run() {
+                    serverMagnet.getMagnet().setServerState("Idle")
+                            .thenAccept(unused -> serverMagnet.getLogger().info("Server state is now : Idle"))
+                            .exceptionally(throwable -> {
+                                throwable.printStackTrace();
+                                return null;
+                            });
+                }
+            };
+            serverMagnet.getMagnet().getTimer().schedule(idlingTask, 1000 * 60 * 5);
         }
 
     }

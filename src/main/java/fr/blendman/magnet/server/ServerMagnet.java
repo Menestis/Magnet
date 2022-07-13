@@ -6,7 +6,6 @@ import fr.blendman.magnet.api.handles.messenger.events.AdminMovePlayerEvent;
 import fr.blendman.magnet.api.handles.messenger.events.BroadcastEvent;
 import fr.blendman.magnet.api.handles.messenger.events.InvalidatePlayerEvent;
 import fr.blendman.magnet.api.server.ServerCacheHandler;
-import fr.blendman.magnet.api.server.chat.ChatManager;
 import fr.blendman.magnet.api.server.players.Mute;
 import fr.blendman.magnet.server.chat.ChatManagerImpl;
 import fr.blendman.magnet.server.commands.AStopCommand;

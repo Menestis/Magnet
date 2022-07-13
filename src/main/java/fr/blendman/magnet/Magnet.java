@@ -104,6 +104,11 @@ public class Magnet implements MagnetApi {
     }
 
     @Override
+    public Map<String, String> getProperties() {
+        return getServer().getProperties();
+    }
+
+    @Override
     public CompletableFuture<Integer> getPlayerCount() {
         CompletableFuture<Integer> ret = new CompletableFuture<>();
         try {

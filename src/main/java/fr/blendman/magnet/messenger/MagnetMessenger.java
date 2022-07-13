@@ -6,7 +6,6 @@ import com.rabbitmq.client.*;
 import fr.blendman.magnet.MagnetSide;
 import fr.blendman.magnet.api.handles.messenger.MagnetNetworkEvent;
 import fr.blendman.magnet.api.handles.messenger.MessengerHandle;
-import fr.blendman.skynet.models.Broadcast;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -30,6 +29,7 @@ public class MagnetMessenger implements RecoveryListener, MessengerHandle {
     private UUID id;
 
     public MagnetMessenger(MagnetSide side, UUID id) throws IOException, TimeoutException, URISyntaxException, NoSuchAlgorithmException, KeyManagementException {
+        System.out.println("Initializing messenger");
         ConnectionFactory factory = new ConnectionFactory();
         factory.setUri(System.getenv("AMQP_ADDRESS"));
         factory.setAutomaticRecoveryEnabled(true);
@@ -37,7 +37,7 @@ public class MagnetMessenger implements RecoveryListener, MessengerHandle {
         connection = factory.newConnection(id.toString());
         channel = (RecoverableChannel) connection.createChannel();
         channel.addRecoveryListener(this);
-
+        System.out.println("Initialized messenger");
         defaultConsumer = new DefaultConsumer(channel) {
             @Override
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {

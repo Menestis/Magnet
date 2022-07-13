@@ -84,6 +84,11 @@ public class LoginListener implements Listener {
         } catch (ApiException e) {
             e.printStackTrace();
         }
+        ret.thenAccept(unused -> {
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
     }
 
     private void processLoginInfo(Player player, ServerLoginPlayerInfo info) {
@@ -148,9 +153,20 @@ public class LoginListener implements Listener {
         } catch (ApiException e) {
             e.printStackTrace();
         }
-
         ret.thenAccept(unused -> {
 
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+
+        CompletableFuture<Void> ret2 = new CompletableFuture<>();
+        try {
+            serverApi.apiServersUuidPlayercountPostAsync(serverMagnet.getMagnet().getServerId(), Bukkit.getOnlinePlayers().size() - 1, new ApiCallBackToCompletableFuture<>(ret2));
+        } catch (ApiException e) {
+            e.printStackTrace();
+        }
+        ret2.thenAccept(unused -> {
         }).exceptionally(throwable -> {
             throwable.printStackTrace();
             return null;

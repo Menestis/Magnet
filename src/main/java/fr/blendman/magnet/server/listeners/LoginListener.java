@@ -149,7 +149,11 @@ public class LoginListener implements Listener {
         CompletableFuture<Void> ret = new CompletableFuture<>();
         Map<String, Integer> stats = getStats(event.getPlayer());
         try {
-            serverMagnet.getMagnet().getPlayerApi().apiPlayersUuidStatsPostAsync(event.getPlayer().getUniqueId(), new PlayerStats().server(serverMagnet.getMagnet().getServerId()).session(info.getSession()).stats(stats), new ApiCallBackToCompletableFuture<>(ret));
+            PlayerStats plstats = new PlayerStats().server(serverMagnet.getMagnet().getServerId()).session(info.getSession()).stats(stats);
+            String game_kind = serverMagnet.getMagnet().getRegistryValue("game_kind");
+            if (game_kind != null)
+                plstats.setGameKind(game_kind);
+            serverMagnet.getMagnet().getPlayerApi().apiPlayersUuidStatsPostAsync(event.getPlayer().getUniqueId(), plstats, new ApiCallBackToCompletableFuture<>(ret));
         } catch (ApiException e) {
             e.printStackTrace();
         }

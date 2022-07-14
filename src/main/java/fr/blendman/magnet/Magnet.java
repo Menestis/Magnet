@@ -18,10 +18,7 @@ import fr.blendman.skynet.models.CreateServer;
 import fr.blendman.skynet.models.PlayerInfo;
 import fr.blendman.skynet.models.Server;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -43,6 +40,7 @@ public class Magnet implements MagnetApi {
     private final DiscordApi discordApi;
     private final StatsApi statsApi;
     private final Timer timer;
+    private final Map<String, String> registry = new HashMap<>();
 
     public Magnet(MagnetSide side) throws Exception {
         client = Configuration.getDefaultApiClient();
@@ -200,6 +198,16 @@ public class Magnet implements MagnetApi {
                 return new LeaderboardEntry("?", -1);
             return new LeaderboardEntry(split[0], Integer.parseInt(split[1]));
         }).collect(Collectors.toList())));
+    }
+
+    @Override
+    public String getRegistryValue(String s) {
+        return registry.get(s);
+    }
+
+    @Override
+    public void setRegistryValue(String k, String v) {
+        registry.put(k, v);
     }
 
     public CompletableFuture<PlayerInfo> getPlayerInfo(String player) {

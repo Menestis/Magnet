@@ -207,6 +207,8 @@ public class Magnet implements MagnetApi {
 
     @Override
     public void setRegistryValue(String k, String v) {
+        if (v == null)
+            registry.remove(k);
         registry.put(k, v);
     }
 

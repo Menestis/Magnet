@@ -3,6 +3,8 @@ package fr.blendman.magnet;
 import fr.blendman.magnet.api.MagnetApi;
 import fr.blendman.magnet.api.handles.PlayerHandle;
 import fr.blendman.magnet.api.handles.TransactionsHandle;
+import fr.blendman.magnet.api.server.leaderboards.Leaderboard;
+import fr.blendman.magnet.api.server.leaderboards.LeaderboardEntry;
 import fr.blendman.magnet.handles.PlayerHandleImpl;
 import fr.blendman.magnet.handles.TransactionsHandleImpl;
 import fr.blendman.magnet.messenger.MagnetMessenger;
@@ -39,6 +41,7 @@ public class Magnet implements MagnetApi {
     private final TransactionsHandle transactionHandle;
     private final PlayerHandle playerHandle;
     private final DiscordApi discordApi;
+    private final StatsApi statsApi;
     private final Timer timer;
 
     public Magnet(MagnetSide side) throws Exception {
@@ -68,6 +71,7 @@ public class Magnet implements MagnetApi {
         loginApi = new LoginApi(client);
         sessionApi = new SessionApi(client);
         discordApi = new DiscordApi(client);
+        statsApi = new StatsApi(client);
 
         transactionHandle = new TransactionsHandleImpl(this);
         playerHandle = new PlayerHandleImpl(this);
@@ -179,6 +183,23 @@ public class Magnet implements MagnetApi {
             ret.completeExceptionally(e);
         }
         return ret;
+    }
+
+    @Override
+    public CompletableFuture<Leaderboard> getLeaderboard(String s) {
+        CompletableFuture<fr.blendman.skynet.models.Leaderboard> ret = new CompletableFuture<>();
+        try {
+            statsApi.apiLeaderboardsNameGetAsync(s, new ApiCallBackToCompletableFuture<>(ret));
+        } catch (ApiException e) {
+            ret.completeExceptionally(e);
+        }
+
+        return ret.thenApply(leaderboard -> new Leaderboard(leaderboard.getLabel(), leaderboard.getLeaderboard().stream().map(entry -> {
+            String[] split = entry.split(":");
+            if (split.length == 1)
+                return new LeaderboardEntry("?", -1);
+            return new LeaderboardEntry(split[0], Integer.parseInt(split[1]));
+        }).collect(Collectors.toList())));
     }
 
     public CompletableFuture<PlayerInfo> getPlayerInfo(String player) {

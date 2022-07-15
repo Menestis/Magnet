@@ -6,7 +6,6 @@ import com.velocitypowered.api.event.player.KickedFromServerEvent;
 import com.velocitypowered.api.event.player.PlayerChooseInitialServerEvent;
 
 import java.net.InetSocketAddress;
-import java.util.Locale;
 
 /**
  * @author Blendman974
@@ -23,8 +22,8 @@ public class MoveListener {
         String vhost = event.getPlayer().getVirtualHost().map(InetSocketAddress::getHostString)
                 .orElse(null);
 
-        if (vhost != null && velocityMagnet.getForcedHost(vhost) != null){
-            System.out.println("Sending player to forced host : "+vhost);
+        if (vhost != null && velocityMagnet.getForcedHost(vhost) != null) {
+            System.out.println("Sending player to forced host : " + vhost);
             event.setInitialServer(velocityMagnet.getForcedHost(vhost));
             return null;
         }
@@ -40,7 +39,11 @@ public class MoveListener {
         if (event.kickedDuringServerConnect()) {
             return null;
         }
-        return EventTask.resumeWhenComplete(velocityMagnet.getAvailableServerOfKind("lobby").thenAccept(server -> event.setResult(KickedFromServerEvent.RedirectPlayer.create(server))).exceptionally(throwable -> {
+        return EventTask.resumeWhenComplete(velocityMagnet.getAvailableServerOfKind("lobby").thenAccept(server -> {
+            if (!event.getServer().getServerInfo().getName().equals(server.getServerInfo().getName())) {
+                event.setResult(KickedFromServerEvent.RedirectPlayer.create(server));
+            }
+        }).exceptionally(throwable -> {
             throwable.printStackTrace();
             return null;
         }));

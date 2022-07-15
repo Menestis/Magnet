@@ -59,13 +59,14 @@ public class NetworkListener {
                     player.sendMessage(Component.text("§4" + "Vous êtes déja connecté sur ce serveur !"));
                     break;
                 case CONNECTION_IN_PROGRESS:
-                    player.sendMessage(Component.text("§4" + "La connexion est cours !"));
+                    player.sendMessage(Component.text("§b" + "Connexion en cours..."));
                     break;
                 case CONNECTION_CANCELLED:
-                    player.sendMessage(Component.text("§4" + "La connexion n'a pas pus aboutir suite a une erreur inconue"));
+                    player.sendMessage(Component.text("§4" + "La connexion n'a pas pu aboutir suite a une erreur inconue"));
                     break;
                 case SERVER_DISCONNECTED:
-                    player.sendMessage(Component.text("§4" + "Impossible de vous connecter : " + result.getReasonComponent().orElse(Component.text("aucune idée mais wallah tu peux pas"))));
+                    player.sendMessage(Component.text("§4" + "Impossible de vous connecter : "));
+                    player.sendMessage(result.getReasonComponent().orElse(Component.text("erreur inconnue")));
                     break;
             }
         }).exceptionally(throwable -> {

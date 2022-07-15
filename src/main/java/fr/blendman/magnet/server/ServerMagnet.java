@@ -86,7 +86,12 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
 
     private void processKindCompat(Server server) {
         if (server.getProperties() != null && server.getProperties().containsKey("directly_waiting")) {
-            magnet.setServerState("Waiting");
+            magnet.setServerState("Waiting").thenAccept(unused -> {
+                System.out.println("Server is now Waiting for players");
+            }).exceptionally(throwable -> {
+                throwable.printStackTrace();
+                return null;
+            });
         }
     }
 

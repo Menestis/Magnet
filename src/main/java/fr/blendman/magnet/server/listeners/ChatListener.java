@@ -24,7 +24,7 @@ import java.util.*;
 public class ChatListener implements Listener {
 
     private final ServerMagnet serverMagnet;
-    private List<UUID> muted = new ArrayList<>();
+    private final List<UUID> muted = new ArrayList<>();
 
     public ChatListener(ServerMagnet serverMagnet) {
         this.serverMagnet = serverMagnet;
@@ -73,7 +73,6 @@ public class ChatListener implements Listener {
     public void onPlayerInfoReadyEvent(PlayerInfoReadyEvent event) {
         Mute mute = event.getInfo().getMute();
         if (mute != null) {
-            muted.add(event.getPlayer().getUniqueId());
 
             //TODO schedule a task (but optimized) to unmute the player once his sanction is finished
 
@@ -91,6 +90,8 @@ public class ChatListener implements Listener {
                 player.sendMessage("§8• §fTemps restant: §e" + NumberUtils.timeToStringAll(mute.getRemaining()));
                 player.sendMessage("");
             }
+            muted.add(event.getPlayer().getUniqueId());
+
         } else if (event.isReCache())
             muted.remove(event.getPlayer().getUniqueId());
     }

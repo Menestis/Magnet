@@ -84,7 +84,7 @@ public class AmuteCommand implements SimpleCommand {
 
 
                 }).thenAccept(unused -> {
-                    source.sendMessage(Component.text(Magnet.getPrefix() + "Le joueur " + args[0] + " a été " + (finalUmute ? "mute" : "unmute")));
+                    source.sendMessage(Component.text(Magnet.getPrefix() + "Le joueur " + args[0] + " a été " + (finalUmute ? "unmute" : "mute")));
                 }).exceptionally(throwable -> {
                     source.sendMessage(Component.text(Magnet.getPrefix() + "Impossible de charger vos informations !"));
                     throwable.printStackTrace();

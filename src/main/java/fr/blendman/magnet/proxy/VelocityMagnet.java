@@ -2,11 +2,8 @@ package fr.blendman.magnet.proxy;
 
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
-import com.velocitypowered.api.event.proxy.ListenerCloseEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
-import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
-import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
@@ -151,6 +148,10 @@ public class VelocityMagnet {
     public CompletableFuture<RegisteredServer> getAvailableServerOfKind(String kind) {
         Iterator<RegisteredServer> it = serversByKind.getOrDefault(kind, new HashSet<>()).stream().map(srv -> server.getServer(srv.getServerInfo().getName())).filter(Optional::isPresent).map(Optional::get).iterator();
         return recursiveGetNextAvailableServer(it);
+    }
+
+    public Set<RegisteredServer> getServersByKind(String kind){
+        return serversByKind.get(kind);
     }
 
     private CompletableFuture<RegisteredServer> recursiveGetNextAvailableServer(Iterator<RegisteredServer> it) {

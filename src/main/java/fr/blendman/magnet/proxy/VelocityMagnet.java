@@ -8,6 +8,7 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import com.velocitypowered.api.proxy.server.ServerPing;
+import com.velocitypowered.api.util.Favicon;
 import fr.blendman.magnet.Magnet;
 import fr.blendman.magnet.MagnetSide;
 import fr.blendman.magnet.api.handles.messenger.events.*;

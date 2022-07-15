@@ -11,7 +11,6 @@ import com.velocitypowered.api.event.permission.PermissionsSetupEvent;
 import com.velocitypowered.api.event.player.PlayerClientBrandEvent;
 import com.velocitypowered.api.event.player.PlayerModInfoEvent;
 import com.velocitypowered.api.event.proxy.ProxyPingEvent;
-import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.permission.PermissionFunction;
 import com.velocitypowered.api.permission.PermissionSubject;
 import com.velocitypowered.api.permission.Tristate;
@@ -107,7 +106,7 @@ public class LoginListener {
     }
 
     @Subscribe
-    private EventTask onPostLogin(PostLoginEvent event){
+    private EventTask onPostLogin(PostLoginEvent event) {
         CompletableFuture<Void> ret = new CompletableFuture<>();
         try {
             velocityMagnet.getMagnet().getProxyApi().apiProxyUuidPlayercountPostAsync(velocityMagnet.getMagnet().getServerId(), velocityMagnet.getServer().getPlayerCount(), new ApiCallBackToCompletableFuture<>(ret));
@@ -146,7 +145,12 @@ public class LoginListener {
 
         proxyApi.apiProxyPingGetAsync(new ApiCallBackToCompletableFuture<>(ret));
 
-        return EventTask.resumeWhenComplete(ret.thenAccept(pingInfo -> event.setPing(ServerPing.builder().version(event.getPing().getVersion()).onlinePlayers(pingInfo.getOnline()).description(Component.text(pingInfo.getMotd())).maximumPlayers(pingInfo.getSlots()).build())));
+        return EventTask.resumeWhenComplete(ret.thenAccept(pingInfo -> {
+            ServerPing.Builder build = ServerPing.builder().version(event.getPing().getVersion()).onlinePlayers(pingInfo.getOnline()).description(Component.text(pingInfo.getMotd())).maximumPlayers(pingInfo.getSlots());
+            if (event.getPing().getFavicon().isPresent())
+                build.favicon(event.getPing().getFavicon().get());
+            event.setPing(build.build());
+        }));
     }
 
 

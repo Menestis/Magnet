@@ -81,6 +81,7 @@ public class VelocityMagnet {
     private void registerCommands() {
         getServer().getCommandManager().register("hub", new HubCommand(this), "lobby");
         getServer().getCommandManager().register("aban", new AbanCommand(this));
+        getServer().getCommandManager().register("amute", new AbanCommand(this));
         getServer().getCommandManager().register("rank", new RankCommand(this));
         getServer().getCommandManager().register("send", new SendCommand(this));
         getServer().getCommandManager().register("lookup", new LookupCommand(this));

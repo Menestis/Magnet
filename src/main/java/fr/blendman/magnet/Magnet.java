@@ -184,6 +184,17 @@ public class Magnet implements MagnetApi {
     }
 
     @Override
+    public CompletableFuture<Void> stopServer(String s) {
+        CompletableFuture<Void> ret = new CompletableFuture<>();
+        try {
+            getServerApi().apiServersLabelDeleteAsync(s, new ApiCallBackToCompletableFuture<>(ret));
+        } catch (ApiException e) {
+            ret.completeExceptionally(e);
+        }
+        return ret;
+    }
+
+    @Override
     public CompletableFuture<Leaderboard> getLeaderboard(String s) {
         CompletableFuture<fr.blendman.skynet.models.Leaderboard> ret = new CompletableFuture<>();
         try {

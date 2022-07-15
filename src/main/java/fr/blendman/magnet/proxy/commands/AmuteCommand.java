@@ -56,7 +56,7 @@ public class AmuteCommand implements SimpleCommand {
 
         String message = args.length > 2 ? String.join(" ", Arrays.copyOfRange(args, 2, args.length)) : null;
 
-        boolean finalUban = umute;
+        boolean finalUmute = umute;
         boolean finalPerm = perm;
         velocityMagnet.getMagnet().getPlayerInfo(args[0]).thenCompose(toBan ->
                 velocityMagnet.getMagnet().getPlayerInfo(((Player) source).getUniqueId().toString()).thenCompose(self -> {
@@ -65,11 +65,10 @@ public class AmuteCommand implements SimpleCommand {
                         source.sendMessage(Component.text(Magnet.getPrefix() + "Vous n'avez pas un pouvoir de mute suffisant !"));
                         return CompletableFuture.completedFuture(null);
                     } else {
-                        source.sendMessage(Component.text(Magnet.getPrefix() + "Le joueur " + args[0] + " a été " + (finalUban ? "mute" : "unmute")));
                         PlayerMute mute = new PlayerMute().issuer(self.getUuid());
                         if (message != null)
                             mute.reason(message);
-                        if (finalUban)
+                        if (finalUmute)
                             mute.unban(true);
                         if (!finalPerm)
                             mute.duration(duration);
@@ -84,6 +83,8 @@ public class AmuteCommand implements SimpleCommand {
                     }
 
 
+                }).thenAccept(unused -> {
+                    source.sendMessage(Component.text(Magnet.getPrefix() + "Le joueur " + args[0] + " a été " + (finalUmute ? "mute" : "unmute")));
                 }).exceptionally(throwable -> {
                     source.sendMessage(Component.text(Magnet.getPrefix() + "Impossible de charger vos informations !"));
                     throwable.printStackTrace();
@@ -93,7 +94,7 @@ public class AmuteCommand implements SimpleCommand {
                 source.sendMessage(Component.text(Magnet.getPrefix() + "Ce joueur n'existe pas !"));
             } else {
                 throwable.printStackTrace();
-                source.sendMessage(Component.text(Magnet.getPrefix() + "Un erreur est survenue"));
+                source.sendMessage(Component.text(Magnet.getPrefix() + "Une erreur est survenue"));
             }
             return null;
         }).exceptionally(throwable -> {

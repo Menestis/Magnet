@@ -50,11 +50,14 @@ public class LinkCommand implements TabExecutor {
             ret.completeExceptionally(e);
         }
 
-        ret.thenAccept(code -> sender.sendMessage(Magnet.getPrefix() + "§7Votre code de liaison est: §b" + code + " §7!"))
-                .exceptionally(throwable -> {
-                    throwable.printStackTrace();
-                    return null;
-                });
+        ret.thenAccept(code -> {
+            sender.sendMessage(Magnet.getPrefix() + "§7Votre code de liaison est: §b" + code + " §7!");
+            sender.sendMessage(Magnet.getPrefix() + "§7Utilisez la commande §b/link §l" + code + "§r§7 sur notre discord afin de completer votre profil !");
+
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
 
         return true;
     }

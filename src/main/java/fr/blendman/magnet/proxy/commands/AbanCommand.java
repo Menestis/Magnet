@@ -93,7 +93,7 @@ public class AbanCommand implements SimpleCommand {
                 source.sendMessage(Component.text(Magnet.getPrefix() + "Ce joueur n'existe pas !"));
             } else {
                 throwable.printStackTrace();
-                source.sendMessage(Component.text(Magnet.getPrefix() + "Un erreur est survenue"));
+                source.sendMessage(Component.text(Magnet.getPrefix() + "Une erreur est survenue"));
             }
             return null;
         }).exceptionally(throwable -> {

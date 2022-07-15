@@ -2,8 +2,11 @@ package fr.blendman.magnet.proxy;
 
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.proxy.ListenerCloseEvent;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
+import com.velocitypowered.api.event.proxy.ProxyShutdownEvent;
 import com.velocitypowered.api.plugin.Plugin;
+import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
@@ -81,13 +84,11 @@ public class VelocityMagnet {
     private void registerCommands() {
         getServer().getCommandManager().register("hub", new HubCommand(this), "lobby");
         getServer().getCommandManager().register("aban", new AbanCommand(this));
-        getServer().getCommandManager().register("amute", new AbanCommand(this));
+        getServer().getCommandManager().register("amute", new AmuteCommand(this));
         getServer().getCommandManager().register("rank", new RankCommand(this));
         getServer().getCommandManager().register("send", new SendCommand(this));
         getServer().getCommandManager().register("lookup", new LookupCommand(this));
         getServer().getCommandManager().register("transaction", new TransactionCommand(this));
-
-
     }
 
     void saveServer(UUID id, String kind, RegisteredServer info, Map<String, String> properties) {

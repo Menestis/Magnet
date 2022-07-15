@@ -85,8 +85,8 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
     }
 
     private void processKindCompat(Server server) {
-        if (server.getProperties() != null && server.getProperties().containsKey("startingstate")) {
-            magnet.setServerState(server.getProperties().get("startingstate"));
+        if (server.getProperties() != null && server.getProperties().containsKey("directly_waiting")) {
+            magnet.setServerState("Waiting");
         }
     }
 

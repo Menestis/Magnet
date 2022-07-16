@@ -165,6 +165,7 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
         whitelist.add(player);
     }
 
+    @Override
     public ChatManagerImpl getChatManager(){
         return this.chatManager;
     }

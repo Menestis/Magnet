@@ -50,7 +50,7 @@ public class ChatManagerImpl implements ChatManager {
         this.messageQueue.add(messageData);
         this.idMessageDataMap.put(messageId, messageData);
         this.confirmationMap.put(messageId, new ArrayList<>());
-
+        System.out.println("> " + player.getName() + ": " + message);
         this.playerStringBiConsumer.accept(player, message, messageId);
     }
 

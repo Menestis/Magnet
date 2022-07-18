@@ -8,10 +8,7 @@ import fr.blendman.magnet.api.handles.messenger.events.InvalidatePlayerEvent;
 import fr.blendman.magnet.api.server.ServerCacheHandler;
 import fr.blendman.magnet.api.server.players.Mute;
 import fr.blendman.magnet.server.chat.ChatManagerImpl;
-import fr.blendman.magnet.server.commands.AStopCommand;
-import fr.blendman.magnet.server.commands.LinkCommand;
-import fr.blendman.magnet.server.commands.ReportMessageCommand;
-import fr.blendman.magnet.server.commands.SysCallCommand;
+import fr.blendman.magnet.server.commands.*;
 import fr.blendman.magnet.server.listeners.BukkitCommandPreProcessor;
 import fr.blendman.magnet.server.listeners.ChatListener;
 import fr.blendman.magnet.server.listeners.LoginListener;
@@ -100,6 +97,7 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
         registerCommand(new SysCallCommand(this), "syscall");
         registerCommand(new LinkCommand(this), "link");
         registerCommand(new ReportMessageCommand(this), "reportmsg");
+        registerCommand(new ReCommand(this), "re");
     }
 
     private void registerCommand(TabExecutor cmd, String cmdName) {

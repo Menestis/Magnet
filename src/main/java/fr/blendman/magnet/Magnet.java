@@ -223,17 +223,6 @@ public class Magnet implements MagnetApi {
         registry.put(k, v);
     }
 
-    public CompletableFuture<PlayerInfo> getPlayerInfo(String player) {
-        CompletableFuture<PlayerInfo> ret = new CompletableFuture<>();
-        try {
-            getPlayerApi().apiPlayersPlayerGetAsync(player, new ApiCallBackToCompletableFuture<>(ret));
-        } catch (ApiException e) {
-            ret.completeExceptionally(e);
-        }
-
-        return ret;
-    }
-
     public MagnetMessenger getMessenger() {
         return messenger;
     }

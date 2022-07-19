@@ -6,7 +6,6 @@ import fr.blendman.magnet.api.handles.messenger.events.AdminMovePlayerEvent;
 import fr.blendman.magnet.api.handles.messenger.events.BroadcastEvent;
 import fr.blendman.magnet.api.handles.messenger.events.InvalidatePlayerEvent;
 import fr.blendman.magnet.api.server.ServerCacheHandler;
-import fr.blendman.magnet.api.server.players.Mute;
 import fr.blendman.magnet.server.chat.ChatManagerImpl;
 import fr.blendman.magnet.server.commands.*;
 import fr.blendman.magnet.server.listeners.BukkitCommandPreProcessor;
@@ -98,6 +97,7 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
         registerCommand(new LinkCommand(this), "link");
         registerCommand(new ReportMessageCommand(this), "reportmsg");
         registerCommand(new ReCommand(this), "re");
+        registerCommand(new SysBanCommand(this), "sysban");
     }
 
     private void registerCommand(TabExecutor cmd, String cmdName) {
@@ -119,20 +119,12 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
         this.infos.put(uniqueId, info);
     }
 
-    public fr.blendman.magnet.api.server.players.ServerLoginPlayerInfo getInfo(UUID uniqueId) {
-        return fromServerInfo(this.infos.get(uniqueId));
+    public ServerLoginPlayerInfo getInfo(UUID uniqueId) {
+        return this.infos.get(uniqueId);
     }
 
     public ServerLoginPlayerInfo getRawInfo(UUID uuid) {
         return this.infos.get(uuid);
-    }
-
-    public fr.blendman.magnet.api.server.players.ServerLoginPlayerInfo fromServerInfo(ServerLoginPlayerInfo info) {
-        if (info == null)
-            return null;
-        fr.blendman.skynet.models.Mute mute = info.getMute();
-        return new fr.blendman.magnet.api.server.players.ServerLoginPlayerInfo(info.getSession(), info.getProxy(), info.getPrefix(), info.getSuffix(), info.getLocale(), info.getPermissions(), info.getPower(), info.getCurrency(), info.getPremiumCurrency(), info.getBlocked(), info.getInventory(), info.getProperties(), info.getDiscordId(),
-                mute == null ? null : new Mute(mute.getId(), mute.getStart(), mute.getEnd(), mute.getIssuer(), mute.getReason(), mute.getTarget(), mute.getRemaining()));
     }
 
     public boolean shouldBeWhitelisted(UUID uuid) {

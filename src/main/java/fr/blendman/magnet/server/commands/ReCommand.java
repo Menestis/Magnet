@@ -39,6 +39,7 @@ public class ReCommand implements TabExecutor {
         String enabled = serverMagnet.getMagnet().getRegistryValue("enable-re-command");
         if (enabled == null || !enabled.equals("true"))
             return false;
+
         serverMagnet.getMagnet().getPlayerHandle().movePlayerToServer(player.getUniqueId(), server.getKind()).thenAccept(s1 -> {
             if (s1.equals("Ok"))
                 player.sendMessage("§3§lMenestis §f» §7Vous rejoignez la §efile d'attente§7...");

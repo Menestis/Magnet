@@ -58,8 +58,8 @@ public class AmuteCommand implements SimpleCommand {
 
         boolean finalUmute = umute;
         boolean finalPerm = perm;
-        velocityMagnet.getMagnet().getPlayerInfo(args[0]).thenCompose(toBan ->
-                velocityMagnet.getMagnet().getPlayerInfo(((Player) source).getUniqueId().toString()).thenCompose(self -> {
+        velocityMagnet.getMagnet().getPlayerHandle().getPlayerInfo(args[0]).thenCompose(toBan ->
+                velocityMagnet.getMagnet().getPlayerHandle().getPlayerInfo(((Player) source).getUniqueId().toString()).thenCompose(self -> {
 
                     if (self.getPower() <= toBan.getPower()) {
                         source.sendMessage(Component.text(Magnet.getPrefix() + "Vous n'avez pas un pouvoir de mute suffisant !"));

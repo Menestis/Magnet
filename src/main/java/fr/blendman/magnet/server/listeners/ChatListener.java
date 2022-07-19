@@ -1,14 +1,12 @@
 package fr.blendman.magnet.server.listeners;
 
 import fr.blendman.magnet.Magnet;
-import fr.blendman.magnet.api.MagnetApi;
 import fr.blendman.magnet.api.server.ServerCacheHandler;
 import fr.blendman.magnet.api.server.events.PlayerInfoReadyEvent;
-import fr.blendman.magnet.api.server.players.Mute;
-import fr.blendman.magnet.api.server.players.ServerLoginPlayerInfo;
 import fr.blendman.magnet.server.ServerMagnet;
-import fr.blendman.magnet.server.chat.ChatManagerImpl;
 import fr.blendman.magnet.utils.NumberUtils;
+import fr.blendman.skynet.models.Mute;
+import fr.blendman.skynet.models.ServerLoginPlayerInfo;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

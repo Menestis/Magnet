@@ -5,6 +5,7 @@ import fr.blendman.magnet.api.handles.PlayerHandle;
 import fr.blendman.magnet.utils.ApiCallBackToCompletableFuture;
 import fr.blendman.skynet.api.PlayerApi;
 import fr.blendman.skynet.client.ApiException;
+import fr.blendman.skynet.models.PlayerInfo;
 import fr.blendman.skynet.models.PlayerMove;
 
 import java.util.UUID;
@@ -41,6 +42,19 @@ public class PlayerHandleImpl implements PlayerHandle {
         } catch (ApiException e) {
             ret.completeExceptionally(e);
         }
+        return ret;
+    }
+
+
+    @Override
+    public CompletableFuture<PlayerInfo> getPlayerInfo(String player) {
+        CompletableFuture<PlayerInfo> ret = new CompletableFuture<>();
+        try {
+            playerApi.apiPlayersPlayerGetAsync(player, new ApiCallBackToCompletableFuture<>(ret));
+        } catch (ApiException e) {
+            ret.completeExceptionally(e);
+        }
+
         return ret;
     }
 }

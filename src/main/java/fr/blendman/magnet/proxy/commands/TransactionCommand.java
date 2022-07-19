@@ -47,7 +47,7 @@ public class TransactionCommand implements SimpleCommand {
 
         source.sendMessage(Component.text("Récupération du joueur " + args[0]));
 
-        velocityMagnet.getMagnet().getPlayerInfo(args[0])
+        velocityMagnet.getMagnet().getPlayerHandle().getPlayerInfo(args[0])
                 .thenCompose(playerInfo -> velocityMagnet.getMagnet().getTransactionHandle().transaction(playerInfo.getUuid(), currency, premiumCurrency))
                 .thenAccept(aBoolean -> {
                     if (aBoolean)

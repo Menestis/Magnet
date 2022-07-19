@@ -25,3 +25,4 @@ commands:
     permission: magnet.system.re
   link: {}
   reportmsg: {}
+  sysban: {}

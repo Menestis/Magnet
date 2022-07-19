@@ -30,6 +30,7 @@ public class VelocityMagnet {
     private final Logger logger;
     private Magnet magnet;
     private final Map<UUID, RegisteredServer> servers = new HashMap<>();
+    private final Map<String, UUID> serversIds = new HashMap<>();
     private final Map<String, RegisteredServer> serversByForcedHost = new HashMap<>();
     private final Map<String, Set<RegisteredServer>> serversByKind = new HashMap<>();
     private final Map<UUID, String> serversKinds = new HashMap<>();
@@ -90,6 +91,7 @@ public class VelocityMagnet {
 
     void saveServer(UUID id, String kind, RegisteredServer info, Map<String, String> properties) {
         this.servers.put(id, info);
+        this.serversIds.put(info.getServerInfo().getName(), id);
         this.serversKinds.put(id, kind);
         if (properties != null) {
             this.serverProperties.put(id, properties);
@@ -116,10 +118,15 @@ public class VelocityMagnet {
     void removeServer(UUID id) {
         RegisteredServer oldServer = this.servers.remove(id);
         Map<String, String> properties = this.serverProperties.remove(id);
-        if (properties != null && properties.containsKey("forcedHost"))
+        if (properties != null && properties.containsKey("forcedHost")) {
             serversByForcedHost.remove(properties.get("forcedHost"));
+        }
         String kind = this.serversKinds.remove(id);
-        if (kind != null && oldServer != null)
+
+        if (oldServer != null)
+            this.serversIds.remove(oldServer.getServerInfo().getName());
+
+        if (kind != null && oldServer != null) {
             this.serversByKind.computeIfPresent(kind, (s, registeredServers) -> {
                 registeredServers.remove(oldServer);
                 if (registeredServers.isEmpty())
@@ -127,6 +134,7 @@ public class VelocityMagnet {
                 else
                     return registeredServers;
             });
+        }
     }
 
 
@@ -184,6 +192,10 @@ public class VelocityMagnet {
 
     public RegisteredServer getServerById(UUID id) {
         return servers.get(id);
+    }
+
+    public UUID getServerId(String name) {
+        return serversIds.get(name);
     }
 
     public RegisteredServer getForcedHost(String vhost) {

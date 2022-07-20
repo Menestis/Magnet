@@ -5,7 +5,6 @@ import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import fr.blendman.magnet.api.handles.messenger.events.*;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 
 import java.net.InetSocketAddress;
 import java.util.Optional;
@@ -89,18 +88,19 @@ public class NetworkListener {
     }
 
 
-    public void onDisconnectRequest(DisconnectPlayerEvent event){
+    public void onDisconnectRequest(DisconnectPlayerEvent event) {
         velocityMagnet.getServer().getPlayer(event.player).ifPresent(player -> {
-            player.disconnect(Component.text("You have been disconnected !"));
+            String message = event.message == null ? "You have been disconnected !" : event.message;
+            player.disconnect(Component.text(message));
         });
     }
 
     public void onBroadcast(BroadcastEvent event) {
-        if (event.getPermission() != null){
+        if (event.getPermission() != null) {
             velocityMagnet.getServer().getAllPlayers().stream().filter(player -> player.hasPermission(event.getPermission())).forEach(player -> {
                 player.sendMessage(Component.text(event.getMessage()));
             });
-        }else {
+        } else {
             velocityMagnet.getServer().sendMessage(Component.text(event.getMessage()));
         }
     }

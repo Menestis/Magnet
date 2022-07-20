@@ -63,7 +63,7 @@ public class PlayerHandleImpl implements PlayerHandle {
     public CompletableFuture<PlayerSanctionResult> sanctionPlayer(UUID uuid, String category, UUID issuer, boolean b) {
         CompletableFuture<PlayerSanctionResult> ret = new CompletableFuture<>();
         try {
-            playerApi.apiPlayersUuidSanctionPostAsync(uuid, new PlayerSanction().categorie(category).issuer(issuer).unsanction(b), new ApiCallBackToCompletableFuture<>(ret));
+            playerApi.apiPlayersUuidSanctionPostAsync(uuid, new PlayerSanction().category(category).issuer(issuer).unsanction(b), new ApiCallBackToCompletableFuture<>(ret));
         } catch (ApiException e) {
             if (e.getCode() == 409) {
                 ret.complete(null);

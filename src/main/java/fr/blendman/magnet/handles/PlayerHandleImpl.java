@@ -7,6 +7,8 @@ import fr.blendman.skynet.api.PlayerApi;
 import fr.blendman.skynet.client.ApiException;
 import fr.blendman.skynet.models.PlayerInfo;
 import fr.blendman.skynet.models.PlayerMove;
+import fr.blendman.skynet.models.PlayerSanction;
+import fr.blendman.skynet.models.PlayerSanctionResult;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -45,6 +47,16 @@ public class PlayerHandleImpl implements PlayerHandle {
         return ret;
     }
 
+    @Override
+    public CompletableFuture<PlayerSanctionResult> sanctionPlayer(UUID uuid, String category, UUID issuer, boolean b) {
+        CompletableFuture<PlayerSanctionResult> ret = new CompletableFuture<>();
+        try {
+            playerApi.apiPlayersUuidSanctionPostAsync(uuid, new PlayerSanction().categorie(category).issuer(issuer).unsanction(b), new ApiCallBackToCompletableFuture<>(ret));
+        } catch (ApiException e) {
+            ret.completeExceptionally(e);
+        }
+        return ret;
+    }
 
     @Override
     public CompletableFuture<PlayerInfo> getPlayerInfo(String player) {

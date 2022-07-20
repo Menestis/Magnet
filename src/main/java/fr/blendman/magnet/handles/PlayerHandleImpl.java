@@ -49,6 +49,17 @@ public class PlayerHandleImpl implements PlayerHandle {
     }
 
     @Override
+    public CompletableFuture<UUID> getPlayerUUID(String s) {
+        CompletableFuture<UUID> ret = new CompletableFuture<>();
+        try {
+            playerApi.apiPlayersPlayerUuidGet(s);
+        } catch (ApiException e) {
+            ret.completeExceptionally(e);
+        }
+        return ret;
+    }
+
+    @Override
     public CompletableFuture<PlayerSanctionResult> sanctionPlayer(UUID uuid, String category, UUID issuer, boolean b) {
         CompletableFuture<PlayerSanctionResult> ret = new CompletableFuture<>();
         try {

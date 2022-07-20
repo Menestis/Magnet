@@ -20,6 +20,7 @@ public class PlayerHandleImpl implements PlayerHandle {
 
     private final Magnet magnet;
     private final PlayerApi playerApi;
+
     public PlayerHandleImpl(Magnet magnet) {
         this.magnet = magnet;
         playerApi = magnet.getPlayerApi();
@@ -53,9 +54,19 @@ public class PlayerHandleImpl implements PlayerHandle {
         try {
             playerApi.apiPlayersUuidSanctionPostAsync(uuid, new PlayerSanction().categorie(category).issuer(issuer).unsanction(b), new ApiCallBackToCompletableFuture<>(ret));
         } catch (ApiException e) {
-            ret.completeExceptionally(e);
+            if (e.getCode() == 409) {
+                ret.complete(null);
+                return ret;
+            } else
+                ret.completeExceptionally(e);
         }
-        return ret;
+        return ret.exceptionally(throwable -> {
+            if (throwable instanceof ApiException && ((ApiException) throwable).getCode() == 409)
+                return null;
+            else
+                throwable.printStackTrace();
+            return null;
+        });
     }
 
     @Override

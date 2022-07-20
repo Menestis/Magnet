@@ -52,7 +52,7 @@ public class PlayerHandleImpl implements PlayerHandle {
     public CompletableFuture<UUID> getPlayerUUID(String s) {
         CompletableFuture<UUID> ret = new CompletableFuture<>();
         try {
-            playerApi.apiPlayersPlayerUuidGet(s);
+            playerApi.apiPlayersPlayerUuidGetAsync(s, new ApiCallBackToCompletableFuture<>(ret));
         } catch (ApiException e) {
             ret.completeExceptionally(e);
         }

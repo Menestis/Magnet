@@ -48,6 +48,10 @@ public class ChatListener implements Listener {
 
         if (muted.contains(player.getUniqueId())) {
             Mute mute = ServerCacheHandler.ServerCacheHandlerStore.getServerCacheHandler().getInfo(player.getUniqueId()).getMute();
+            if (mute == null) {
+                muted.remove(player.getUniqueId());
+                return;
+            }
 
             player.playSound(player.getLocation(), "ANVIL_BREAK", 1, 1);
             player.sendMessage("");

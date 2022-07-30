@@ -98,6 +98,7 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
         registerCommand(new ReportMessageCommand(this), "reportmsg");
         registerCommand(new ReCommand(this), "re");
         registerCommand(new SysBanCommand(this), "sysban");
+        registerCommand(new EchoCommand(this), "echo");
     }
 
     private void registerCommand(TabExecutor cmd, String cmdName) {

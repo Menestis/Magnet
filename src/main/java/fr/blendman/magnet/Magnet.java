@@ -15,7 +15,6 @@ import fr.blendman.skynet.client.ApiException;
 import fr.blendman.skynet.client.Configuration;
 import fr.blendman.skynet.client.auth.ApiKeyAuth;
 import fr.blendman.skynet.models.CreateServer;
-import fr.blendman.skynet.models.PlayerInfo;
 import fr.blendman.skynet.models.Server;
 
 import java.util.*;
@@ -39,6 +38,7 @@ public class Magnet implements MagnetApi {
     private final PlayerHandle playerHandle;
     private final DiscordApi discordApi;
     private final StatsApi statsApi;
+    private final EchoApi echoApi;
     private final Timer timer;
     private final Map<String, String> registry = new HashMap<>();
 
@@ -70,6 +70,7 @@ public class Magnet implements MagnetApi {
         sessionApi = new SessionApi(client);
         discordApi = new DiscordApi(client);
         statsApi = new StatsApi(client);
+        echoApi = new EchoApi(client);
 
         transactionHandle = new TransactionsHandleImpl(this);
         playerHandle = new PlayerHandleImpl(this);
@@ -263,6 +264,10 @@ public class Magnet implements MagnetApi {
 
     public Timer getTimer() {
         return timer;
+    }
+
+    public EchoApi getEchoApi() {
+        return echoApi;
     }
 }
 

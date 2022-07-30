@@ -1,9 +1,7 @@
 package fr.blendman.magnet.server.commands;
 
+import fr.blendman.magnet.api.MagnetApi;
 import fr.blendman.magnet.server.ServerMagnet;
-import fr.blendman.magnet.utils.ApiCallBackToCompletableFuture;
-import fr.blendman.skynet.client.ApiException;
-import fr.blendman.skynet.models.PlayerBan;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -13,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Blendman974
@@ -43,19 +40,14 @@ public class SysBanCommand implements TabExecutor {
             return true;
 
 
-        CompletableFuture<Void> ret = new CompletableFuture<>();
-        try {
-            serverMagnet.getMagnet().getPlayerApi().apiPlayersUuidBanPostAsync(player.getUniqueId(), new PlayerBan().reason("Automated ban (Anticheat)"), new ApiCallBackToCompletableFuture<>(ret));
-        } catch (ApiException e) {
-            ret.completeExceptionally(e);
-        }
-        ret.thenAccept(unused -> {
-            System.out.println("Auto banned " + player.getUniqueId() + " " + player.getName());
-        }).exceptionally(throwable -> {
-            throwable.printStackTrace();
-            return null;
-        });
-
+        MagnetApi.MagnetStore.getApi().getPlayerHandle().sanctionPlayer(player.getUniqueId(), "cheating", null, false)
+                .thenAccept(playerSanctionResult -> {
+                    System.out.println("Attempted to sysban " + player.getName() + " : " + (playerSanctionResult.getSanction() == null ? "Fail" : "Success"));
+                })
+                .exceptionally(throwable -> {
+                    throwable.printStackTrace();
+                    return null;
+                });
 
         return true;
     }

@@ -69,13 +69,13 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
         Bukkit.getPluginManager().registerEvents(new BukkitCommandPreProcessor(this), this);
         Bukkit.getPluginManager().registerEvents(new ChatListener(this), this);
         registerCommands();
-        Bukkit.getScheduler().runTask(this, () -> {
+        Bukkit.getScheduler().runTaskLater(this, () -> {
             try {
                 handlePropertiesActions();
             } catch (ApiException e) {
                 e.printStackTrace();
             }
-        });
+        },20*5);
         chatManager = new ChatManagerImpl(this);
 
     }

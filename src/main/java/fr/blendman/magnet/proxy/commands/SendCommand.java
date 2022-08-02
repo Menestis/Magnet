@@ -48,7 +48,7 @@ public class SendCommand implements SimpleCommand {
     }
 
     private void movePlayer(String playerName, UUID serverUuid, CommandSource player){
-        velocityMagnet.getMagnet().getPlayerInfo(playerName).thenAccept(playerInfo -> {
+        velocityMagnet.getMagnet().getPlayerHandle().getPlayerInfo(playerName).thenAccept(playerInfo -> {
             UUID uuid = playerInfo.getUuid();
             MagnetApi.MagnetStore.getApi().getPlayerHandle().movePlayerToServer(uuid, serverUuid, true).thenAccept(s -> {
                 switch (s) {

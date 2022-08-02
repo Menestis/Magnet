@@ -30,6 +30,7 @@ public class VelocityMagnet {
     private final Logger logger;
     private Magnet magnet;
     private final Map<UUID, RegisteredServer> servers = new HashMap<>();
+    private final Map<String, UUID> serversIds = new HashMap<>();
     private final Map<String, RegisteredServer> serversByForcedHost = new HashMap<>();
     private final Map<String, Set<RegisteredServer>> serversByKind = new HashMap<>();
     private final Map<UUID, String> serversKinds = new HashMap<>();
@@ -81,22 +82,26 @@ public class VelocityMagnet {
     private void registerCommands() {
         getServer().getCommandManager().register("hub", new HubCommand(this), "lobby");
         getServer().getCommandManager().register("aban", new AbanCommand(this));
+        getServer().getCommandManager().register("amute", new AmuteCommand(this));
         getServer().getCommandManager().register("rank", new RankCommand(this));
         getServer().getCommandManager().register("send", new SendCommand(this));
         getServer().getCommandManager().register("lookup", new LookupCommand(this));
         getServer().getCommandManager().register("transaction", new TransactionCommand(this));
-
-
     }
 
     void saveServer(UUID id, String kind, RegisteredServer info, Map<String, String> properties) {
         this.servers.put(id, info);
+        this.serversIds.put(info.getServerInfo().getName(), id);
         this.serversKinds.put(id, kind);
         if (properties != null) {
             this.serverProperties.put(id, properties);
             if (properties.containsKey("forcedHost"))
                 serversByForcedHost.put(properties.get("forcedHost"), info);
+            if (properties.containsKey("host")) {
+                return;
+            }
         }
+
         this.serversByKind.compute(kind, (s, servers) -> {
             if (servers == null) {
                 HashSet<RegisteredServer> set = new HashSet<>();
@@ -113,10 +118,15 @@ public class VelocityMagnet {
     void removeServer(UUID id) {
         RegisteredServer oldServer = this.servers.remove(id);
         Map<String, String> properties = this.serverProperties.remove(id);
-        if (properties != null && properties.containsKey("forcedHost"))
+        if (properties != null && properties.containsKey("forcedHost")) {
             serversByForcedHost.remove(properties.get("forcedHost"));
+        }
         String kind = this.serversKinds.remove(id);
-        if (kind != null && oldServer != null)
+
+        if (oldServer != null)
+            this.serversIds.remove(oldServer.getServerInfo().getName());
+
+        if (kind != null && oldServer != null) {
             this.serversByKind.computeIfPresent(kind, (s, registeredServers) -> {
                 registeredServers.remove(oldServer);
                 if (registeredServers.isEmpty())
@@ -124,6 +134,7 @@ public class VelocityMagnet {
                 else
                     return registeredServers;
             });
+        }
     }
 
 
@@ -149,6 +160,10 @@ public class VelocityMagnet {
     public CompletableFuture<RegisteredServer> getAvailableServerOfKind(String kind) {
         Iterator<RegisteredServer> it = serversByKind.getOrDefault(kind, new HashSet<>()).stream().map(srv -> server.getServer(srv.getServerInfo().getName())).filter(Optional::isPresent).map(Optional::get).iterator();
         return recursiveGetNextAvailableServer(it);
+    }
+
+    public Set<RegisteredServer> getServersByKind(String kind) {
+        return serversByKind.get(kind);
     }
 
     private CompletableFuture<RegisteredServer> recursiveGetNextAvailableServer(Iterator<RegisteredServer> it) {
@@ -177,6 +192,10 @@ public class VelocityMagnet {
 
     public RegisteredServer getServerById(UUID id) {
         return servers.get(id);
+    }
+
+    public UUID getServerId(String name) {
+        return serversIds.get(name);
     }
 
     public RegisteredServer getForcedHost(String vhost) {

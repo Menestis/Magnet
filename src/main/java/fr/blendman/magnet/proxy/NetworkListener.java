@@ -5,7 +5,6 @@ import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import fr.blendman.magnet.api.handles.messenger.events.*;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 
 import java.net.InetSocketAddress;
 import java.util.Optional;
@@ -59,13 +58,14 @@ public class NetworkListener {
                     player.sendMessage(Component.text("§4" + "Vous êtes déja connecté sur ce serveur !"));
                     break;
                 case CONNECTION_IN_PROGRESS:
-                    player.sendMessage(Component.text("§4" + "La connexion est cours !"));
+                    player.sendMessage(Component.text("§b" + "Connexion en cours..."));
                     break;
                 case CONNECTION_CANCELLED:
-                    player.sendMessage(Component.text("§4" + "La connexion n'a pas pus aboutir suite a une erreur inconue"));
+                    player.sendMessage(Component.text("§4" + "La connexion n'a pas pu aboutir suite a une erreur inconue"));
                     break;
                 case SERVER_DISCONNECTED:
-                    player.sendMessage(Component.text("§4" + "Impossible de vous connecter : " + result.getReasonComponent().orElse(Component.text("aucune idée mais wallah tu peux pas"))));
+                    player.sendMessage(Component.text("§4" + "Impossible de vous connecter : "));
+                    player.sendMessage(result.getReasonComponent().orElse(Component.text("erreur inconnue")));
                     break;
             }
         }).exceptionally(throwable -> {
@@ -88,18 +88,19 @@ public class NetworkListener {
     }
 
 
-    public void onDisconnectRequest(DisconnectPlayerEvent event){
+    public void onDisconnectRequest(DisconnectPlayerEvent event) {
         velocityMagnet.getServer().getPlayer(event.player).ifPresent(player -> {
-            player.disconnect(Component.text("You have been disconnected !"));
+            String message = event.message == null ? "You have been disconnected !" : event.message;
+            player.disconnect(Component.text(message));
         });
     }
 
     public void onBroadcast(BroadcastEvent event) {
-        if (event.getPermission() != null){
+        if (event.getPermission() != null) {
             velocityMagnet.getServer().getAllPlayers().stream().filter(player -> player.hasPermission(event.getPermission())).forEach(player -> {
                 player.sendMessage(Component.text(event.getMessage()));
             });
-        }else {
+        } else {
             velocityMagnet.getServer().sendMessage(Component.text(event.getMessage()));
         }
     }

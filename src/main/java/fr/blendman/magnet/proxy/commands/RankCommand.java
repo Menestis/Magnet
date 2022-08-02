@@ -43,7 +43,7 @@ public class RankCommand implements SimpleCommand {
             return;
         }
         source.sendMessage(Component.text("Récupération du joueur " + args[0]));
-        velocityMagnet.getMagnet().getPlayerInfo(args[0]).thenCompose(playerInfo -> {
+        velocityMagnet.getMagnet().getPlayerHandle().getPlayerInfo(args[0]).thenCompose(playerInfo -> {
 
             CompletableFuture<Void> ret = new CompletableFuture<>();
             try {

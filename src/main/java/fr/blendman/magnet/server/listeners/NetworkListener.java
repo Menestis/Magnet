@@ -57,7 +57,7 @@ public class NetworkListener {
             info.setDiscordId(newInfo.getDiscordId());
             info.setMute(newInfo.getMute());
             if (Bukkit.getPlayer(event.getUuid()) != null)
-                Bukkit.getPluginManager().callEvent(new PlayerInfoReadyEvent(serverMagnet.fromServerInfo(info), player, true));
+                Bukkit.getPluginManager().callEvent(new PlayerInfoReadyEvent(info, player, true));
         }).exceptionally(throwable -> {
             throwable.printStackTrace();
             return null;

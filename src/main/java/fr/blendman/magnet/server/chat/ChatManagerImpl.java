@@ -50,7 +50,7 @@ public class ChatManagerImpl implements ChatManager {
         this.messageQueue.add(messageData);
         this.idMessageDataMap.put(messageId, messageData);
         this.confirmationMap.put(messageId, new ArrayList<>());
-
+        System.out.println("CHAT> " + player.getName() + ": " + message);
         this.playerStringBiConsumer.accept(player, message, messageId);
     }
 
@@ -89,7 +89,7 @@ public class ChatManagerImpl implements ChatManager {
 
         try {
             //TODO trouver utf8 emojis
-            magnet.getMagnet().getDiscordApi().apiDiscordWebhookNamePostAsync("ingame-reports", "**(!)** Le joueur `" + messageData.getPlayerName() + "` a été signalé pour son message " + messageData.getMessage() + " (par `" + reporter.getName() + "`)", new ApiCallback<Void>() {
+            magnet.getMagnet().getDiscordApi().apiDiscordWebhookNamePostAsync("ingame-reports", "**(!)** Le joueur `" + messageData.getPlayerName() + "` a été signalé pour son message \"" + messageData.getMessage() + "\" (par `" + reporter.getName() + "`)", new ApiCallback<Void>() {
                 @Override
                 public void onFailure(ApiException e, int statusCode, Map<String, List<String>> responseHeaders) {
                     e.printStackTrace();
@@ -160,6 +160,7 @@ public class ChatManagerImpl implements ChatManager {
     private PlayerChatConsumer playerStringBiConsumer = (player, message, id) -> {
 
         String prefix = ServerCacheHandler.ServerCacheHandlerStore.getServerCacheHandler().getInfo(player.getUniqueId()).getPrefix();
+        String suffix = ServerCacheHandler.ServerCacheHandlerStore.getServerCacheHandler().getInfo(player.getUniqueId()).getSuffix();
 
         String[] checkMention = message.split(" ");
         for (String word : checkMention) {
@@ -173,7 +174,7 @@ public class ChatManagerImpl implements ChatManager {
         InteractiveMessage interactiveMessage = new InteractiveMessage().add(
                         new TextComponentBuilder("§4Ⓒ ").setHoverMessage("§8§l▪ §cCliquez pour signaler le message du joueur §e" + player.getName())
                                 .setClickAction(ClickEvent.Action.RUN_COMMAND, "/reportmsg " + id).build())
-                .add((prefix == null ? "§7" : prefix) + player.getName() + " » §f" + message);
+                .add((prefix == null ? "§7" : prefix) + player.getName() + (suffix == null ? "" : suffix) + " » §f" + message);
 
         Bukkit.getOnlinePlayers().forEach(interactiveMessage::sendMessage);
     };

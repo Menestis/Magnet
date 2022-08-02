@@ -7,7 +7,7 @@ import fr.blendman.magnet.Magnet;
 import fr.blendman.magnet.proxy.VelocityMagnet;
 import fr.blendman.magnet.utils.ApiCallBackToCompletableFuture;
 import fr.blendman.skynet.client.ApiException;
-import fr.blendman.skynet.models.PlayerBan;
+import fr.blendman.skynet.models.PlayerMute;
 import net.kyori.adventure.text.Component;
 
 import java.util.Arrays;
@@ -16,10 +16,10 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author Blendman974
  */
-public class AbanCommand implements SimpleCommand {
+public class AmuteCommand implements SimpleCommand {
     private final VelocityMagnet velocityMagnet;
 
-    public AbanCommand(VelocityMagnet velocityMagnet) {
+    public AmuteCommand(VelocityMagnet velocityMagnet) {
         this.velocityMagnet = velocityMagnet;
     }
 
@@ -30,7 +30,7 @@ public class AbanCommand implements SimpleCommand {
         if (!(source instanceof Player))
             return;
 
-        if (!source.hasPermission("aspaku.ban")) {
+        if (!source.hasPermission("aspaku.mute")) {
             source.sendMessage(Component.text(Magnet.getPrefix() + "Vous n'avez pas la permission nécéssaire"));
             return;
         }
@@ -38,45 +38,44 @@ public class AbanCommand implements SimpleCommand {
         String[] args = invocation.arguments();
         if (args.length < 2) {
             source.sendMessage(Component.text(Magnet.getPrefix() + "Vous devez spécifier un pseudonyme, une durée et une optionellement une raison"));
-            source.sendMessage(Component.text(Magnet.getPrefix() + "Exemple : /aban R2D2Nico_ 1y toutes les raisons du monde"));
+            source.sendMessage(Component.text(Magnet.getPrefix() + "Exemple : /amute R2D2Nico_ 1y toutes les raisons du monde"));
             return;
         }
 
         int duration = parseDuration(args[1]);
-        boolean uban = false;
+        boolean umute = false;
         boolean perm = false;
         if (duration == -5) {
             source.sendMessage(Component.text(Magnet.getPrefix() + "Durée invalide !"));
             return;
         } else if (duration == 0) {
-            uban = true;
+            umute = true;
         } else if (duration == -1) {
             perm = true;
         }
 
         String message = args.length > 2 ? String.join(" ", Arrays.copyOfRange(args, 2, args.length)) : null;
 
-        boolean finalUban = uban;
+        boolean finalUmute = umute;
         boolean finalPerm = perm;
         velocityMagnet.getMagnet().getPlayerHandle().getPlayerInfo(args[0]).thenCompose(toBan ->
                 velocityMagnet.getMagnet().getPlayerHandle().getPlayerInfo(((Player) source).getUniqueId().toString()).thenCompose(self -> {
 
                     if (self.getPower() <= toBan.getPower()) {
-                        source.sendMessage(Component.text(Magnet.getPrefix() + "Vous n'avez pas un pouvoir de banissement suffisant !"));
+                        source.sendMessage(Component.text(Magnet.getPrefix() + "Vous n'avez pas un pouvoir de mute suffisant !"));
                         return CompletableFuture.completedFuture(null);
                     } else {
-                        source.sendMessage(Component.text(Magnet.getPrefix() + "Le joueur " + args[0] + " a été " + (finalUban ? "débannis" : "bannis")));
-                        PlayerBan ban = new PlayerBan().issuer(self.getUuid());
+                        PlayerMute mute = new PlayerMute().issuer(self.getUuid());
                         if (message != null)
-                            ban.reason(message);
-                        if (finalUban)
-                            ban.unban(true);
+                            mute.reason(message);
+                        if (finalUmute)
+                            mute.unban(true);
                         if (!finalPerm)
-                            ban.duration(duration);
+                            mute.duration(duration);
 
                         CompletableFuture<Void> ret = new CompletableFuture<>();
                         try {
-                            velocityMagnet.getMagnet().getPlayerApi().apiPlayersUuidBanPostAsync(toBan.getUuid(), ban, new ApiCallBackToCompletableFuture<>(ret));
+                            velocityMagnet.getMagnet().getPlayerApi().apiPlayersUuidMutePostAsync(toBan.getUuid(), mute, new ApiCallBackToCompletableFuture<>(ret));
                         } catch (ApiException e) {
                             ret.completeExceptionally(e);
                         }
@@ -84,6 +83,8 @@ public class AbanCommand implements SimpleCommand {
                     }
 
 
+                }).thenAccept(unused -> {
+                    source.sendMessage(Component.text(Magnet.getPrefix() + "Le joueur " + args[0] + " a été " + (finalUmute ? "unmute" : "mute")));
                 }).exceptionally(throwable -> {
                     source.sendMessage(Component.text(Magnet.getPrefix() + "Impossible de charger vos informations !"));
                     throwable.printStackTrace();

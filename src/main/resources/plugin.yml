@@ -19,5 +19,11 @@ commands:
     permission: magnet.servers.setstate
   syscall:
     permission: magnet.servers.setstate
+  vanish:
+    permission: magnet.system.vanish
+  re:
+    permission: magnet.system.re
   link: {}
   reportmsg: {}
+  sysban: {}
+  echo: {}

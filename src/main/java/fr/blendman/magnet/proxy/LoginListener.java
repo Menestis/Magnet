@@ -10,26 +10,21 @@ import com.velocitypowered.api.event.connection.PreLoginEvent;
 import com.velocitypowered.api.event.permission.PermissionsSetupEvent;
 import com.velocitypowered.api.event.player.PlayerClientBrandEvent;
 import com.velocitypowered.api.event.player.PlayerModInfoEvent;
-import com.velocitypowered.api.event.player.ServerPostConnectEvent;
 import com.velocitypowered.api.event.proxy.ProxyPingEvent;
 import com.velocitypowered.api.permission.PermissionFunction;
 import com.velocitypowered.api.permission.PermissionSubject;
 import com.velocitypowered.api.permission.Tristate;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.server.ServerPing;
-import fr.blendman.magnet.api.handles.messenger.events.DisconnectPlayerEvent;
 import fr.blendman.magnet.utils.ApiCallBackToCompletableFuture;
 import fr.blendman.magnet.utils.ProxyUtils;
 import fr.blendman.skynet.api.LoginApi;
 import fr.blendman.skynet.api.ProxyApi;
-import fr.blendman.skynet.client.ApiCallback;
 import fr.blendman.skynet.client.ApiException;
 import fr.blendman.skynet.models.*;
 import net.kyori.adventure.text.Component;
-import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -111,7 +106,7 @@ public class LoginListener {
     }
 
     @Subscribe
-    private EventTask onPostLogin(PostLoginEvent event){
+    private EventTask onPostLogin(PostLoginEvent event) {
         CompletableFuture<Void> ret = new CompletableFuture<>();
         try {
             velocityMagnet.getMagnet().getProxyApi().apiProxyUuidPlayercountPostAsync(velocityMagnet.getMagnet().getServerId(), velocityMagnet.getServer().getPlayerCount(), new ApiCallBackToCompletableFuture<>(ret));
@@ -150,7 +145,12 @@ public class LoginListener {
 
         proxyApi.apiProxyPingGetAsync(new ApiCallBackToCompletableFuture<>(ret));
 
-        return EventTask.resumeWhenComplete(ret.thenAccept(pingInfo -> event.setPing(ServerPing.builder().version(event.getPing().getVersion()).onlinePlayers(pingInfo.getOnline()).description(Component.text(pingInfo.getMotd())).maximumPlayers(pingInfo.getSlots()).build())));
+        return EventTask.resumeWhenComplete(ret.thenAccept(pingInfo -> {
+            ServerPing.Builder build = ServerPing.builder().version(event.getPing().getVersion()).onlinePlayers(pingInfo.getOnline()).description(Component.text(pingInfo.getMotd())).maximumPlayers(pingInfo.getSlots());
+            if (event.getPing().getFavicon().isPresent())
+                build.favicon(event.getPing().getFavicon().get());
+            event.setPing(build.build());
+        }));
     }
 
 

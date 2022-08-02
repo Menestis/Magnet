@@ -39,7 +39,7 @@ public class LookupCommand implements SimpleCommand {
 
         source.sendMessage(Component.text("Récupération du joueur " + args[0]));
 
-        velocityMagnet.getMagnet().getPlayerInfo(args[0])
+        velocityMagnet.getMagnet().getPlayerHandle().getPlayerInfo(args[0])
                 .thenAccept(info -> {
                     source.sendMessage(Component.text("UUID: ").append(Component.text(info.getUuid().toString()).color(NamedTextColor.GRAY)));
                     source.sendMessage(Component.text("Power: ").append(Component.text(info.getPower()).color(NamedTextColor.GRAY)));

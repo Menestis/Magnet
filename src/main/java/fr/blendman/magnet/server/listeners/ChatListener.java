@@ -1,14 +1,12 @@
 package fr.blendman.magnet.server.listeners;
 
 import fr.blendman.magnet.Magnet;
-import fr.blendman.magnet.api.MagnetApi;
 import fr.blendman.magnet.api.server.ServerCacheHandler;
 import fr.blendman.magnet.api.server.events.PlayerInfoReadyEvent;
-import fr.blendman.magnet.api.server.players.Mute;
-import fr.blendman.magnet.api.server.players.ServerLoginPlayerInfo;
 import fr.blendman.magnet.server.ServerMagnet;
-import fr.blendman.magnet.server.chat.ChatManagerImpl;
 import fr.blendman.magnet.utils.NumberUtils;
+import fr.blendman.skynet.models.Mute;
+import fr.blendman.skynet.models.ServerLoginPlayerInfo;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -24,7 +22,7 @@ import java.util.*;
 public class ChatListener implements Listener {
 
     private final ServerMagnet serverMagnet;
-    private List<UUID> muted = new ArrayList<>();
+    private final List<UUID> muted = new ArrayList<>();
 
     public ChatListener(ServerMagnet serverMagnet) {
         this.serverMagnet = serverMagnet;
@@ -50,6 +48,10 @@ public class ChatListener implements Listener {
 
         if (muted.contains(player.getUniqueId())) {
             Mute mute = ServerCacheHandler.ServerCacheHandlerStore.getServerCacheHandler().getInfo(player.getUniqueId()).getMute();
+            if (mute == null) {
+                muted.remove(player.getUniqueId());
+                return;
+            }
 
             player.playSound(player.getLocation(), "ANVIL_BREAK", 1, 1);
             player.sendMessage("");
@@ -73,7 +75,6 @@ public class ChatListener implements Listener {
     public void onPlayerInfoReadyEvent(PlayerInfoReadyEvent event) {
         Mute mute = event.getInfo().getMute();
         if (mute != null) {
-            muted.add(event.getPlayer().getUniqueId());
 
             //TODO schedule a task (but optimized) to unmute the player once his sanction is finished
 
@@ -91,6 +92,8 @@ public class ChatListener implements Listener {
                 player.sendMessage("§8• §fTemps restant: §e" + NumberUtils.timeToStringAll(mute.getRemaining()));
                 player.sendMessage("");
             }
+            muted.add(event.getPlayer().getUniqueId());
+
         } else if (event.isReCache())
             muted.remove(event.getPlayer().getUniqueId());
     }

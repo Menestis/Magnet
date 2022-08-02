@@ -6,13 +6,8 @@ import fr.blendman.magnet.api.handles.messenger.events.AdminMovePlayerEvent;
 import fr.blendman.magnet.api.handles.messenger.events.BroadcastEvent;
 import fr.blendman.magnet.api.handles.messenger.events.InvalidatePlayerEvent;
 import fr.blendman.magnet.api.server.ServerCacheHandler;
-import fr.blendman.magnet.api.server.chat.ChatManager;
-import fr.blendman.magnet.api.server.players.Mute;
 import fr.blendman.magnet.server.chat.ChatManagerImpl;
-import fr.blendman.magnet.server.commands.AStopCommand;
-import fr.blendman.magnet.server.commands.LinkCommand;
-import fr.blendman.magnet.server.commands.ReportMessageCommand;
-import fr.blendman.magnet.server.commands.SysCallCommand;
+import fr.blendman.magnet.server.commands.*;
 import fr.blendman.magnet.server.listeners.BukkitCommandPreProcessor;
 import fr.blendman.magnet.server.listeners.ChatListener;
 import fr.blendman.magnet.server.listeners.LoginListener;
@@ -74,20 +69,25 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
         Bukkit.getPluginManager().registerEvents(new BukkitCommandPreProcessor(this), this);
         Bukkit.getPluginManager().registerEvents(new ChatListener(this), this);
         registerCommands();
-        Bukkit.getScheduler().runTask(this, () -> {
+        Bukkit.getScheduler().runTaskLater(this, () -> {
             try {
                 handlePropertiesActions();
             } catch (ApiException e) {
                 e.printStackTrace();
             }
-        });
+        },20*5);
         chatManager = new ChatManagerImpl(this);
 
     }
 
     private void processKindCompat(Server server) {
-        if (server.getProperties() != null && server.getProperties().containsKey("startingstate")) {
-            magnet.setServerState(server.getProperties().get("startingstate"));
+        if (server.getProperties() != null && server.getProperties().containsKey("directly_waiting")) {
+            magnet.setServerState("Waiting").thenAccept(unused -> {
+                System.out.println("Server is now Waiting for players");
+            }).exceptionally(throwable -> {
+                throwable.printStackTrace();
+                return null;
+            });
         }
     }
 
@@ -96,6 +96,9 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
         registerCommand(new SysCallCommand(this), "syscall");
         registerCommand(new LinkCommand(this), "link");
         registerCommand(new ReportMessageCommand(this), "reportmsg");
+        registerCommand(new ReCommand(this), "re");
+        registerCommand(new SysBanCommand(this), "sysban");
+        registerCommand(new EchoCommand(this), "echo");
     }
 
     private void registerCommand(TabExecutor cmd, String cmdName) {
@@ -117,20 +120,12 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
         this.infos.put(uniqueId, info);
     }
 
-    public fr.blendman.magnet.api.server.players.ServerLoginPlayerInfo getInfo(UUID uniqueId) {
-        return fromServerInfo(this.infos.get(uniqueId));
+    public ServerLoginPlayerInfo getInfo(UUID uniqueId) {
+        return this.infos.get(uniqueId);
     }
 
     public ServerLoginPlayerInfo getRawInfo(UUID uuid) {
         return this.infos.get(uuid);
-    }
-
-    public fr.blendman.magnet.api.server.players.ServerLoginPlayerInfo fromServerInfo(ServerLoginPlayerInfo info) {
-        if (info == null)
-            return null;
-        fr.blendman.skynet.models.Mute mute = info.getMute();
-        return new fr.blendman.magnet.api.server.players.ServerLoginPlayerInfo(info.getSession(), info.getProxy(), info.getPrefix(), info.getSuffix(), info.getLocale(), info.getPermissions(), info.getPower(), info.getCurrency(), info.getPremiumCurrency(), info.getBlocked(), info.getInventory(), info.getProperties(), info.getDiscordId(),
-                mute == null ? null : new Mute(mute.getId(), mute.getStart(), mute.getEnd(), mute.getIssuer(), mute.getReason(), mute.getTarget(), mute.getRemaining()));
     }
 
     public boolean shouldBeWhitelisted(UUID uuid) {
@@ -161,6 +156,7 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
         whitelist.add(player);
     }
 
+    @Override
     public ChatManagerImpl getChatManager(){
         return this.chatManager;
     }

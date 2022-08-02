@@ -19,10 +19,10 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.permissions.PermissionAttachment;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -33,7 +33,7 @@ public class LoginListener implements Listener {
     private final ServerMagnet serverMagnet;
     private final ServerApi serverApi;
     private final LoginApi loginApi;
-    private BukkitTask idlingTask;
+    private TimerTask idlingTask;
 
     public LoginListener(ServerMagnet serverMagnet) {
         this.serverMagnet = serverMagnet;
@@ -75,14 +75,20 @@ public class LoginListener implements Listener {
         });
 
     }
+
     @EventHandler
-    public void onPostLogin(PlayerJoinEvent event){
+    public void onPostLogin(PlayerJoinEvent event) {
         CompletableFuture<Void> ret = new CompletableFuture<>();
         try {
             serverApi.apiServersUuidPlayercountPostAsync(serverMagnet.getMagnet().getServerId(), Bukkit.getOnlinePlayers().size(), new ApiCallBackToCompletableFuture<>(ret));
         } catch (ApiException e) {
             e.printStackTrace();
         }
+        ret.thenAccept(unused -> {
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
     }
 
     private void processLoginInfo(Player player, ServerLoginPlayerInfo info) {
@@ -108,7 +114,7 @@ public class LoginListener implements Listener {
                 perms.setPermission(p, true);
         }
 
-        Bukkit.getPluginManager().callEvent(new PlayerInfoReadyEvent(serverMagnet.fromServerInfo(info), player, false));
+        Bukkit.getPluginManager().callEvent(new PlayerInfoReadyEvent(info, player, false));
     }
 
     public void tryStartIdlingTask(UUID ignore) {
@@ -116,12 +122,18 @@ public class LoginListener implements Listener {
             return;
         if (Bukkit.getOnlinePlayers().stream().noneMatch(player -> player.getUniqueId() != ignore)) {
             serverMagnet.getLogger().info("Started idling task");
-            idlingTask = Bukkit.getScheduler().runTaskLater(serverMagnet, () -> serverMagnet.getMagnet().setServerState("Idle")
-                    .thenAccept(unused -> serverMagnet.getLogger().info("Server state is now : Idle"))
-                    .exceptionally(throwable -> {
-                        throwable.printStackTrace();
-                        return null;
-                    }), 20 * 60 * 5);
+            idlingTask = new TimerTask() {
+                @Override
+                public void run() {
+                    serverMagnet.getMagnet().setServerState("Idle")
+                            .thenAccept(unused -> serverMagnet.getLogger().info("Server state is now : Idle"))
+                            .exceptionally(throwable -> {
+                                throwable.printStackTrace();
+                                return null;
+                            });
+                }
+            };
+            serverMagnet.getMagnet().getTimer().schedule(idlingTask, 1000 * 60 * 5);
         }
 
     }
@@ -137,13 +149,28 @@ public class LoginListener implements Listener {
         CompletableFuture<Void> ret = new CompletableFuture<>();
         Map<String, Integer> stats = getStats(event.getPlayer());
         try {
-            serverMagnet.getMagnet().getPlayerApi().apiPlayersUuidStatsPostAsync(event.getPlayer().getUniqueId(), new PlayerStats().server(serverMagnet.getMagnet().getServerId()).session(info.getSession()).stats(stats), new ApiCallBackToCompletableFuture<>(ret));
+            PlayerStats plstats = new PlayerStats().server(serverMagnet.getMagnet().getServerId()).session(info.getSession()).stats(stats);
+            String game_kind = serverMagnet.getMagnet().getRegistryValue("game_kind");
+            if (game_kind != null)
+                plstats.setGameKind(game_kind);
+            serverMagnet.getMagnet().getPlayerApi().apiPlayersUuidStatsPostAsync(event.getPlayer().getUniqueId(), plstats, new ApiCallBackToCompletableFuture<>(ret));
         } catch (ApiException e) {
             e.printStackTrace();
         }
-
         ret.thenAccept(unused -> {
 
+        }).exceptionally(throwable -> {
+            throwable.printStackTrace();
+            return null;
+        });
+
+        CompletableFuture<Void> ret2 = new CompletableFuture<>();
+        try {
+            serverApi.apiServersUuidPlayercountPostAsync(serverMagnet.getMagnet().getServerId(), Bukkit.getOnlinePlayers().size() - 1, new ApiCallBackToCompletableFuture<>(ret2));
+        } catch (ApiException e) {
+            e.printStackTrace();
+        }
+        ret2.thenAccept(unused -> {
         }).exceptionally(throwable -> {
             throwable.printStackTrace();
             return null;

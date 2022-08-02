@@ -3,6 +3,8 @@ package fr.blendman.magnet;
 import fr.blendman.magnet.api.MagnetApi;
 import fr.blendman.magnet.api.handles.PlayerHandle;
 import fr.blendman.magnet.api.handles.TransactionsHandle;
+import fr.blendman.magnet.api.server.leaderboards.Leaderboard;
+import fr.blendman.magnet.api.server.leaderboards.LeaderboardEntry;
 import fr.blendman.magnet.handles.PlayerHandleImpl;
 import fr.blendman.magnet.handles.TransactionsHandleImpl;
 import fr.blendman.magnet.messenger.MagnetMessenger;
@@ -13,12 +15,9 @@ import fr.blendman.skynet.client.ApiException;
 import fr.blendman.skynet.client.Configuration;
 import fr.blendman.skynet.client.auth.ApiKeyAuth;
 import fr.blendman.skynet.models.CreateServer;
-import fr.blendman.skynet.models.PlayerInfo;
 import fr.blendman.skynet.models.Server;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -38,15 +37,20 @@ public class Magnet implements MagnetApi {
     private final TransactionsHandle transactionHandle;
     private final PlayerHandle playerHandle;
     private final DiscordApi discordApi;
+    private final StatsApi statsApi;
+    private final EchoApi echoApi;
+    private final Timer timer;
+    private final Map<String, String> registry = new HashMap<>();
 
     public Magnet(MagnetSide side) throws Exception {
         client = Configuration.getDefaultApiClient();
+        timer = new Timer();
 
         String skynetUrl = System.getenv("SKYNET_URL");
         if (skynetUrl == null)
             throw new Exception("Missing SKYNET_URL");
 
-        //client.setDebugging(true);
+      //  client.setDebugging(true);
         client.setBasePath(skynetUrl);
 
         String s = System.getenv("SERVER_NAME") == null ? System.getenv("HOSTNAME") : System.getenv("SERVER_NAME");
@@ -65,6 +69,8 @@ public class Magnet implements MagnetApi {
         loginApi = new LoginApi(client);
         sessionApi = new SessionApi(client);
         discordApi = new DiscordApi(client);
+        statsApi = new StatsApi(client);
+        echoApi = new EchoApi(client);
 
         transactionHandle = new TransactionsHandleImpl(this);
         playerHandle = new PlayerHandleImpl(this);
@@ -98,6 +104,11 @@ public class Magnet implements MagnetApi {
     @Override
     public String getServerLabel() {
         return getServer().getLabel();
+    }
+
+    @Override
+    public Map<String, String> getProperties() {
+        return getServer().getProperties();
     }
 
     @Override
@@ -173,15 +184,44 @@ public class Magnet implements MagnetApi {
         return ret;
     }
 
-    public CompletableFuture<PlayerInfo> getPlayerInfo(String player) {
-        CompletableFuture<PlayerInfo> ret = new CompletableFuture<>();
+    @Override
+    public CompletableFuture<Void> stopServer(String s) {
+        CompletableFuture<Void> ret = new CompletableFuture<>();
         try {
-            getPlayerApi().apiPlayersPlayerGetAsync(player, new ApiCallBackToCompletableFuture<>(ret));
+            getServerApi().apiServersLabelDeleteAsync(s, new ApiCallBackToCompletableFuture<>(ret));
+        } catch (ApiException e) {
+            ret.completeExceptionally(e);
+        }
+        return ret;
+    }
+
+    @Override
+    public CompletableFuture<Leaderboard> getLeaderboard(String s) {
+        CompletableFuture<fr.blendman.skynet.models.Leaderboard> ret = new CompletableFuture<>();
+        try {
+            statsApi.apiLeaderboardsNameGetAsync(s, new ApiCallBackToCompletableFuture<>(ret));
         } catch (ApiException e) {
             ret.completeExceptionally(e);
         }
 
-        return ret;
+        return ret.thenApply(leaderboard -> new Leaderboard(leaderboard.getLabel(), leaderboard.getLeaderboard().stream().map(entry -> {
+            String[] split = entry.split(":");
+            if (split.length == 1)
+                return new LeaderboardEntry("?", -1);
+            return new LeaderboardEntry(split[0], Integer.parseInt(split[1]));
+        }).collect(Collectors.toList())));
+    }
+
+    @Override
+    public String getRegistryValue(String s) {
+        return registry.get(s);
+    }
+
+    @Override
+    public void setRegistryValue(String k, String v) {
+        if (v == null)
+            registry.remove(k);
+        registry.put(k, v);
     }
 
     public MagnetMessenger getMessenger() {
@@ -222,6 +262,12 @@ public class Magnet implements MagnetApi {
         return discordApi;
     }
 
+    public Timer getTimer() {
+        return timer;
+    }
 
+    public EchoApi getEchoApi() {
+        return echoApi;
+    }
 }
 

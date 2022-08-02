@@ -25,13 +25,12 @@ public class HubCommand implements SimpleCommand {
     public void execute(Invocation invocation) {
         CommandSource source = invocation.source();
         if (source instanceof Player) {
-/*
+
             Optional<ServerConnection> currentServer = ((Player) source).getCurrentServer();
-            if (currentServer.isPresent() && velocityMagnet.isServerALobbyByName(currentServer.get().getServerInfo().getName())) {
+            if (currentServer.isPresent() && velocityMagnet.getServersByKind("lobby").contains(currentServer.get().getServer())) {
                 source.sendMessage(Component.text(Magnet.getPrefix() + "Vous êtes déja au lobby"));
                 return;
             }
-*/
 
             source.sendMessage(Component.text(Magnet.getPrefix() + "Téléportation en cours"));
 

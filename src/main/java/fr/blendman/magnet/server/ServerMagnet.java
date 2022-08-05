@@ -2,10 +2,12 @@ package fr.blendman.magnet.server;
 
 import fr.blendman.magnet.Magnet;
 import fr.blendman.magnet.MagnetSide;
+import fr.blendman.magnet.api.handles.EchoHandle;
 import fr.blendman.magnet.api.handles.messenger.events.AdminMovePlayerEvent;
 import fr.blendman.magnet.api.handles.messenger.events.BroadcastEvent;
 import fr.blendman.magnet.api.handles.messenger.events.InvalidatePlayerEvent;
 import fr.blendman.magnet.api.server.ServerCacheHandler;
+import fr.blendman.magnet.server.echo.EchoHandleImpl;
 import fr.blendman.magnet.server.chat.ChatManagerImpl;
 import fr.blendman.magnet.server.commands.*;
 import fr.blendman.magnet.server.listeners.BukkitCommandPreProcessor;
@@ -25,7 +27,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 /**
  * @author Blendman974
@@ -34,9 +35,8 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
     private Magnet magnet;
     private final Map<UUID, ServerLoginPlayerInfo> infos = new HashMap<>();
     private final List<UUID> whitelist = new ArrayList<>();
-    private final List<Consumer<Integer>> loop = new ArrayList<>();
-
     private ChatManagerImpl chatManager;
+    private EchoHandleImpl echoHandle;
 
     @Override
     public void onLoad() {
@@ -77,7 +77,7 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
             }
         },20*5);
         chatManager = new ChatManagerImpl(this);
-
+        echoHandle = new EchoHandleImpl(this);
     }
 
     private void processKindCompat(Server server) {
@@ -161,7 +161,8 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
         return this.chatManager;
     }
 
-    public void scheduleOnLoop(Consumer<Integer> consumer){
-        this.loop.add(consumer);
+    @Override
+    public EchoHandle getEchoHandle() {
+        return echoHandle;
     }
 }

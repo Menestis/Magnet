@@ -1,18 +1,22 @@
 package fr.blendman.magnet.server.commands;
 
 import fr.blendman.magnet.Magnet;
+import fr.blendman.magnet.api.handles.EchoHandle;
 import fr.blendman.magnet.server.ServerMagnet;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author Blendman974
@@ -49,6 +53,10 @@ public class EchoCommand implements TabExecutor {
                 serverMagnet.getEchoHandle().addEchoEventListener("test", (uuid, echoEvent) -> {
                     Player pl = Bukkit.getPlayer(uuid);
                     Bukkit.broadcastMessage(Magnet.getPrefix() + ChatColor.GREEN + "Echo event: " + echoEvent + " from " + (pl == null ? "null" : pl.getName()));
+                    if (echoEvent.equals(EchoHandle.EchoEvent.Status)){
+                        EchoHandle.EchoPlayerStatus playerStatus = serverMagnet.getEchoHandle().getPlayerStatus(uuid);
+                        Bukkit.broadcastMessage(Magnet.getPrefix() + ChatColor.GREEN + "Player status: " + playerStatus);
+                    }
                 });
             }).exceptionally(e -> {
                 player.sendMessage(Magnet.getPrefix() + ChatColor.RED + "Error while enabling echo feature gate");
@@ -58,7 +66,7 @@ public class EchoCommand implements TabExecutor {
             return true;
         } else if (args[0].equals("start")) {
             serverMagnet.getEchoHandle().addPlayer(player.getUniqueId()).thenAccept(code -> {
-                player.sendMessage(Magnet.getPrefix() + ChatColor.GREEN + "Echo player started, you wont be able to move between servers anymore");
+                player.sendMessage(Magnet.getPrefix() + ChatColor.GREEN + "Echo player started");
                 player.sendMessage(Magnet.getPrefix() + ChatColor.GREEN + "Code: " + code);
             }).exceptionally(e -> {
                 player.sendMessage(Magnet.getPrefix() + ChatColor.RED + "Error: " + e.getMessage());
@@ -66,6 +74,10 @@ public class EchoCommand implements TabExecutor {
                 return null;
             });
             return true;
+        }else if (args[0].equals("test")){
+            Location l = player.getLocation();
+            Vector direction = player.getLocation().getDirection();
+            serverMagnet.getEchoHandle().startVirtualAudio(UUID.randomUUID(), "test", new double[]{l.getZ(), l.getX(), l.getY(), direction.getZ(), direction.getX(), direction.getY()},"world", false);
         }
 
 

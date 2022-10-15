@@ -81,6 +81,12 @@ public class PlayerHandleImpl implements PlayerHandle {
     }
 
     @Override
+    public CompletableFuture<Void> setPlayerProperties(UUID uuid, String k, String value) {
+        //TODO
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    @Override
     public CompletableFuture<PlayerInfo> getPlayerInfo(String player) {
         CompletableFuture<PlayerInfo> ret = new CompletableFuture<>();
         try {

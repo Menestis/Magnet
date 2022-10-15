@@ -3,6 +3,8 @@ package fr.blendman.magnet.server.echo;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import fr.blendman.magnet.api.handles.EchoHandle;
+import fr.blendman.magnet.api.handles.messenger.MagnetNetworkEvent;
+import fr.blendman.magnet.api.handles.messenger.events.EchoStartTrackingPlayerEvent;
 import fr.blendman.magnet.server.ServerMagnet;
 import fr.blendman.magnet.utils.ApiCallBackToCompletableFuture;
 import fr.blendman.skynet.api.EchoApi;
@@ -11,7 +13,9 @@ import fr.blendman.skynet.models.EchoUserDefinition;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.Vector;
 import org.java_websocket.client.WebSocketClient;
 
@@ -50,6 +54,7 @@ public class EchoHandleImpl implements EchoHandle, Listener {
         enabled = true;
         CompletableFuture<UUID> ret = new CompletableFuture<>();
 
+        magnet.getMagnet().getMessenger().registerListener(this::onNewPlayerToTrack, EchoStartTrackingPlayerEvent.class);
         try {
             echoApi.apiServersUuidEchoEnableGetAsync(magnet.getMagnet().getServerId(), new ApiCallBackToCompletableFuture<>(ret));
         } catch (ApiException e) {
@@ -63,7 +68,18 @@ public class EchoHandleImpl implements EchoHandle, Listener {
         });
     }
 
+    private void onNewPlayerToTrack(EchoStartTrackingPlayerEvent ev) {
+        magnet.getLogger().info("ECHO: New player to track : " + ev.player);
+        playerStatus.put(ev.player, new EchoPlayerStatus());
+    }
+
     private void tick() {
+        if (websocket == null) {
+            return;
+        } else if (!websocket.isOpen()) {
+            openWebsocket();
+            return;
+        }
         Map<UUID, double[]> positions = new HashMap<>();
         JsonObject jsonObject = new JsonObject();
         for (UUID uuid : playerStatus.keySet()) {
@@ -117,7 +133,7 @@ public class EchoHandleImpl implements EchoHandle, Listener {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("event", "SetPlayerStatus");
         jsonObject.addProperty("player", uuid.toString());
-        jsonObject.addProperty("muted", b);
+        jsonObject.addProperty("mute", b);
         websocket.send(jsonObject.toString());
     }
 
@@ -131,7 +147,7 @@ public class EchoHandleImpl implements EchoHandle, Listener {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("event", "SetPlayerStatus");
         jsonObject.addProperty("player", uuid.toString());
-        jsonObject.addProperty("deafen", b);
+        jsonObject.addProperty("deaf", b);
         websocket.send(jsonObject.toString());
     }
 
@@ -146,6 +162,36 @@ public class EchoHandleImpl implements EchoHandle, Listener {
         jsonObject.addProperty("event", "SetPlayerStatus");
         jsonObject.addProperty("player", uuid.toString());
         jsonObject.addProperty("broadcast", b);
+        websocket.send(jsonObject.toString());
+    }
+
+    @Override
+    public void startVirtualAudio(UUID uuid, String name, double[] position, String world, boolean broadcas) {
+        if (websocket == null || !websocket.isOpen()) {
+            magnet.getLogger().warning("Echo websocket not open, cannot set player state");
+            return;
+        }
+
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("event", "CreateVirtualAudio");
+        jsonObject.addProperty("id", uuid.toString());
+        jsonObject.addProperty("audio_name", name);
+        jsonObject.add("position", gson.toJsonTree(position));
+        jsonObject.addProperty("world", world);
+        jsonObject.addProperty("broadcast", broadcas);
+        websocket.send(jsonObject.toString());
+    }
+
+    @Override
+    public void stopVirtualAudio(UUID uuid) {
+        if (websocket == null || !websocket.isOpen()) {
+            magnet.getLogger().warning("Echo websocket not open, cannot set player state");
+            return;
+        }
+
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("event", "StopVirtualAudio");
+        jsonObject.addProperty("id", uuid.toString());
         websocket.send(jsonObject.toString());
     }
 
@@ -222,5 +268,10 @@ public class EchoHandleImpl implements EchoHandle, Listener {
     @Override
     public void removeEchoEventListener(String s) {
         listeners.remove(s);
+    }
+
+    @EventHandler
+    public void onPlayerLeave(PlayerQuitEvent event) {
+        playerStatus.remove(event.getPlayer().getUniqueId());
     }
 }

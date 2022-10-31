@@ -82,8 +82,14 @@ public class PlayerHandleImpl implements PlayerHandle {
 
     @Override
     public CompletableFuture<Void> setPlayerProperties(UUID uuid, String k, String value) {
-        //TODO
-        throw new UnsupportedOperationException("Not implemented yet");
+        CompletableFuture<Void> ret = new CompletableFuture<>();
+        try {
+            playerApi.apiPlayersUuidPropertiesPropertyPostAsync(uuid, k, value, new ApiCallBackToCompletableFuture<>(ret));
+        } catch (ApiException e) {
+            ret.completeExceptionally(e);
+        }
+
+        return ret;
     }
 
     @Override

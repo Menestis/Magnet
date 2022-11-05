@@ -125,7 +125,7 @@ public class LoginListener implements Listener {
             idlingTask = new TimerTask() {
                 @Override
                 public void run() {
-                    serverMagnet.getMagnet().setServerState("Idle")
+                    serverMagnet.setServerState("Idle")
                             .thenAccept(unused -> serverMagnet.getLogger().info("Server state is now : Idle"))
                             .exceptionally(throwable -> {
                                 throwable.printStackTrace();

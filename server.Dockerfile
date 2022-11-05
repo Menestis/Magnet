@@ -18,6 +18,6 @@ COPY assets/spigot/server.jar /
 #COPY assets/spigot/spigot.yml /config/
 COPY assets/spigot/sportpaper.yml /config/
 COPY target/magnet-0.1.jar /plugins/
-COPY assets/spigot/Vulcan-2.6.7-HOTFIX.jar /plugins/
+COPY assets/spigot/Vulcan-2.7.0.jar /plugins/
 COPY assets/spigot/ViaVersion-4.3.1.jar /plugins/
 COPY assets/spigot/Vulcan/ /plugins/Vulcan/

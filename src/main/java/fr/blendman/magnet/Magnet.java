@@ -139,18 +139,6 @@ public class Magnet implements MagnetApi {
         return playerApi;
     }
 
-
-    @Override
-    public CompletableFuture<Void> setServerState(String s) {
-        CompletableFuture<Void> ret = new CompletableFuture<>();
-        try {
-            getServerApi().apiServersUuidSetstatePostAsync(getServerId(), s, new ApiCallBackToCompletableFuture<>(ret));
-        } catch (ApiException e) {
-            ret.completeExceptionally(e);
-        }
-        return ret;
-    }
-
     @Override
     public CompletableFuture<Void> setServerDescription(String s) {
         CompletableFuture<Void> ret = new CompletableFuture<>();

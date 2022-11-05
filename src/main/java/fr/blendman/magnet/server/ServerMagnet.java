@@ -7,9 +7,9 @@ import fr.blendman.magnet.api.handles.messenger.events.AdminMovePlayerEvent;
 import fr.blendman.magnet.api.handles.messenger.events.BroadcastEvent;
 import fr.blendman.magnet.api.handles.messenger.events.InvalidatePlayerEvent;
 import fr.blendman.magnet.api.server.ServerCacheHandler;
-import fr.blendman.magnet.server.echo.EchoHandleImpl;
 import fr.blendman.magnet.server.chat.ChatManagerImpl;
 import fr.blendman.magnet.server.commands.*;
+import fr.blendman.magnet.server.echo.EchoHandleImpl;
 import fr.blendman.magnet.server.listeners.BukkitCommandPreProcessor;
 import fr.blendman.magnet.server.listeners.ChatListener;
 import fr.blendman.magnet.server.listeners.LoginListener;
@@ -69,26 +69,31 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
         Bukkit.getPluginManager().registerEvents(new BukkitCommandPreProcessor(this), this);
         Bukkit.getPluginManager().registerEvents(new ChatListener(this), this);
         registerCommands();
-        Bukkit.getScheduler().runTaskLater(this, () -> {
-            try {
-                handlePropertiesActions();
-            } catch (ApiException e) {
-                e.printStackTrace();
-            }
-        },20*5);
         chatManager = new ChatManagerImpl(this);
         echoHandle = new EchoHandleImpl(this);
     }
 
     private void processKindCompat(Server server) {
         if (server.getProperties() != null && server.getProperties().containsKey("directly_waiting")) {
-            magnet.setServerState("Waiting").thenAccept(unused -> {
+            setServerState("Waiting").thenAccept(unused -> {
                 System.out.println("Server is now Waiting for players");
             }).exceptionally(throwable -> {
                 throwable.printStackTrace();
                 return null;
             });
         }
+    }
+
+
+    @Override
+    public CompletableFuture<Void> setServerState(String s) {
+        CompletableFuture<Void> ret = new CompletableFuture<>();
+        try {
+            magnet.getServerApi().apiServersUuidSetstatePostAsync(magnet.getServerId(), s, new ApiCallBackToCompletableFuture<>(ret));
+        } catch (ApiException e) {
+            ret.completeExceptionally(e);
+        }
+        return ret.thenCompose(unused -> handlePropertiesActions());
     }
 
     private void registerCommands() {
@@ -132,24 +137,29 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
         return whitelist.remove(uuid);
     }
 
-    private void handlePropertiesActions() throws ApiException {
+    private CompletableFuture<Void> handlePropertiesActions() {
         Map<String, String> properties = magnet.getServer().getProperties();
         if (properties == null)
-            return;
+            return CompletableFuture.completedFuture(null);
 
         if (properties.containsKey("host")) {
             UUID host = UUID.fromString(properties.get("host"));
             Bukkit.setWhitelist(true);
             whitelist.add(host);
             CompletableFuture<String> ret = new CompletableFuture<>();
-            getMagnet().getPlayerApi().apiPlayersUuidMovePostAsync(host, new PlayerMove().server(getMagnet().getServerId()), new ApiCallBackToCompletableFuture<>(ret));
-            ret.thenAccept(sucess -> {
+            try {
+                getMagnet().getPlayerApi().apiPlayersUuidMovePostAsync(host, new PlayerMove().server(getMagnet().getServerId()), new ApiCallBackToCompletableFuture<>(ret));
+            } catch (ApiException e) {
+                ret.completeExceptionally(e);
+            }
+            return ret.thenAccept(sucess -> {
                 getLogger().info("Teleported host to self : " + sucess);
             }).exceptionally(throwable -> {
                 throwable.printStackTrace();
                 return null;
             });
         }
+        return CompletableFuture.completedFuture(null);
     }
 
     public void addWhitelist(UUID player) {
@@ -157,7 +167,7 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
     }
 
     @Override
-    public ChatManagerImpl getChatManager(){
+    public ChatManagerImpl getChatManager() {
         return this.chatManager;
     }
 

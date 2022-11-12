@@ -202,4 +202,7 @@ public class VelocityMagnet {
         return serversByForcedHost.get(vhost);
     }
 
+    public Set<String> getAvailableServerNames() {
+        return serversIds.keySet();
+    }
 }

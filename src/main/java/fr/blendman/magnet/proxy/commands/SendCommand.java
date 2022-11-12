@@ -3,6 +3,7 @@ package fr.blendman.magnet.proxy.commands;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.ServerConnection;
 import fr.blendman.magnet.Magnet;
 import fr.blendman.magnet.api.MagnetApi;
 import fr.blendman.magnet.proxy.VelocityMagnet;
@@ -10,9 +11,9 @@ import fr.blendman.magnet.utils.ApiCallBackToCompletableFuture;
 import fr.blendman.skynet.client.ApiException;
 import net.kyori.adventure.text.Component;
 
-import java.util.Collections;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * @author Blendman974
@@ -24,27 +25,52 @@ public class SendCommand implements SimpleCommand {
         this.velocityMagnet = velocityMagnet;
     }
 
+    @Override
+    public List<String> suggest(Invocation invocation) {
+        return invocation.arguments().length > 1 ? new ArrayList<>(velocityMagnet.getAvailableServerNames()) : Collections.emptyList();
+    }
 
     @Override
     public void execute(Invocation invocation) {
         CommandSource commandSource = invocation.source();
 
-
-        if(invocation.arguments().length != 2) {
-            commandSource.sendMessage(Component.text(Magnet.getPrefix() + "Usage : /send <player> <server-id/here>"));
+        if (!commandSource.hasPermission("aspaku.send")) {
+            commandSource.sendMessage(Component.text(Magnet.getPrefix() + "Vous n'avez pas la permission nécéssaire"));
             return;
         }
 
+        if(invocation.arguments().length == 0) {
+            commandSource.sendMessage(Component.text(Magnet.getPrefix() + "Usage : /send <player> (server-id/server-name)"));
+            return;
+        }
+
+        UUID serverUuid;
+
+        if (invocation.arguments().length == 1 && commandSource instanceof Player) {
+            Optional<UUID> opt = velocityMagnet.getServer().getPlayer(((Player) commandSource).getUniqueId()).flatMap(Player::getCurrentServer).map(serverConnection -> velocityMagnet.getServerId(serverConnection.getServerInfo().getName()));
+            if (!opt.isPresent()) {
+                commandSource.sendMessage(Component.text(Magnet.getPrefix() + "You are not connected to a server"));
+                return;
+            }else {
+                serverUuid = opt.get();
+            }
+        }else {
+            try {
+                serverUuid = UUID.fromString(invocation.arguments()[1]);
+            }catch (IllegalArgumentException e){
+                serverUuid = velocityMagnet.getServerId(invocation.arguments()[1]);
+            }
+        }
+
+        if (serverUuid == null){
+            commandSource.sendMessage(Component.text(Magnet.getPrefix() + "Server not found"));
+            return;
+        }
 
         if(commandSource instanceof Player){
-            if (!commandSource.hasPermission("aspaku.send")) {
-                commandSource.sendMessage(Component.text(Magnet.getPrefix() + "Vous n'avez pas la permission nécéssaire"));
-                return;
-            }
-
-            movePlayer(invocation.arguments()[0], UUID.fromString(invocation.arguments()[1]), commandSource);
+            movePlayer(invocation.arguments()[0], serverUuid, commandSource);
         } else
-            movePlayer(invocation.arguments()[0], UUID.fromString(invocation.arguments()[1]), null);
+            movePlayer(invocation.arguments()[0], serverUuid, null);
     }
 
     private void movePlayer(String playerName, UUID serverUuid, CommandSource player){

@@ -3,6 +3,7 @@ package fr.blendman.magnet.server.commands;
 import fr.blendman.magnet.Magnet;
 import fr.blendman.magnet.server.ServerMagnet;
 import fr.blendman.skynet.models.ServerLoginPlayerInfo;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -40,13 +41,19 @@ public class AStopCommand implements TabExecutor {
             return true;
         }
 
-        serverMagnet.getMagnet().stop().thenAccept(unused -> {
-            sender.sendMessage(Magnet.getPrefix() + ChatColor.RED + "Demande d'arret envoyée !");
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            onlinePlayer.kickPlayer("Server is stopping");
+        }
+
+        Bukkit.getScheduler().runTaskLater(ServerMagnet.getPlugin(ServerMagnet.class), () -> serverMagnet.getMagnet().stop().thenAccept(unused -> {
+//            sender.sendMessage(Magnet.getPrefix() + ChatColor.RED + "Demande d'arret envoyée !");
         }).exceptionally(throwable -> {
             throwable.printStackTrace();
-            sender.sendMessage(Magnet.getPrefix() + ChatColor.RED + "La demande d'arret n'a pas pu aboutir !");
+//            sender.sendMessage(Magnet.getPrefix() + ChatColor.RED + "La demande d'arret n'a pas pu aboutir !");
             return null;
-        });
+        }), 20*5);
+
+
         return true;
     }
 

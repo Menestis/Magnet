@@ -93,7 +93,11 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
         } catch (ApiException e) {
             ret.completeExceptionally(e);
         }
-        return ret.thenCompose(unused -> handlePropertiesActions());
+        if (s.equals("Waiting")) {
+            return ret.thenCompose(unused -> handlePropertiesActions());
+        }else {
+            return ret;
+        }
     }
 
     private void registerCommands() {

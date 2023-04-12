@@ -89,16 +89,16 @@
 
     <distributionManagement>
         <repository>
-            <id>aspaku</id>
-            <name>Aspaku Maven</name>
-            <url>https://nexus.aspaku.com/repository/maven/</url>
+            <id>UndefinedDev</id>
+            <name>Undefined Dev</name>
+            <url>https://nexus.undefined-dev.fr/repository/maven/</url>
         </repository>
     </distributionManagement>
 
     <repositories>
         <repository>
-            <id>aspaku</id>
-            <url>https://nexus.aspaku.com/repository/maven/</url>
+            <id>UndefinedDev</id>
+            <url>https://nexus.undefined-dev.fr/repository/maven/</url>
         </repository>
         <repository>
             <id>papermc</id>
@@ -131,7 +131,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.16.5-R0.1-SNAPSHOT</version>
+            <version>1.19.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

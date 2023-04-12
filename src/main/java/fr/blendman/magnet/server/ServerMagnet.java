@@ -14,7 +14,6 @@ import fr.blendman.magnet.server.listeners.BukkitCommandPreProcessor;
 import fr.blendman.magnet.server.listeners.ChatListener;
 import fr.blendman.magnet.server.listeners.LoginListener;
 import fr.blendman.magnet.server.listeners.NetworkListener;
-import fr.blendman.magnet.server.managers.AnticheatManager;
 import fr.blendman.magnet.utils.ApiCallBackToCompletableFuture;
 import fr.blendman.skynet.client.ApiException;
 import fr.blendman.skynet.models.PlayerMove;
@@ -65,7 +64,6 @@ public class ServerMagnet extends JavaPlugin implements ServerCacheHandler {
             getServer().shutdown();
         }
         Bukkit.getPluginManager().registerEvents(new LoginListener(this), this);
-        Bukkit.getPluginManager().registerEvents(new AnticheatManager(), this);
         Bukkit.getPluginManager().registerEvents(new BukkitCommandPreProcessor(this), this);
         Bukkit.getPluginManager().registerEvents(new ChatListener(this), this);
         registerCommands();
